@@ -274,26 +274,11 @@
     </div>
 
     <script>
-        document.getElementById('skmForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Mengubah form data menjadi object JSON
-            const formData = new FormData(this);
-            const dataObj = {};
-            formData.forEach((value, key) => {
-                dataObj[key] = value;
-            });
-            
-            console.log("Data Siap Dikirim ke Google Apps Script:", dataObj);
-            alert("Terima kasih! Form berhasil divalidasi lokal. (Langkah berikutnya: sambungkan dengan Web App URL dari Google Apps Script)");
-        });
-    <!-- JavaScript Pengirim Data ke Google Apps Script -->
-    <script>
         // GANTI URL DI BAWAH INI dengan Web App URL yang Anda salin dari Google Apps Script
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzzrQsu1RnpfFZYWESgSo2mFb1LryZVlzEOJMhqCOETXfEfZHUz4_QtgpFixGwfRrTerQ/exec";
 
-        document.getElementById('skmForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        document.getElementById('skmForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Menghentikan reload halaman secara mutlak
             
             const form = this;
             const submitButton = form.querySelector('button[type="submit"]');
