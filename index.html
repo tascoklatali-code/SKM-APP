@@ -287,6 +287,61 @@
             console.log("Data Siap Dikirim ke Google Apps Script:", dataObj);
             alert("Terima kasih! Form berhasil divalidasi lokal. (Langkah berikutnya: sambungkan dengan Web App URL dari Google Apps Script)");
         });
+    <!-- JavaScript Pengirim Data ke Google Apps Script -->
+    <script>
+        // GANTI URL DI BAWAH INI dengan Web App URL yang Anda salin dari Google Apps Script
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwapKBcVNLFYOqnzuHBrbbP9beSgKrhKXrVeOHUg5bcm-zwuEXZQoogI490iv7k8KMhyg/exec";
+
+        document.getElementById('skmForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            
+            // 1. Ubah tombol menjadi status Loading
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Memproses...
+            `;
+            submitButton.classList.add('opacity-70', 'cursor-not-allowed');
+
+            // 2. Ambil semua data dari Form
+            const formData = new FormData(form);
+            
+            // Konversi FormData ke URLSearchParams agar sesuai dengan e.parameter di Apps Script
+            const searchParams = new URLSearchParams();
+            for (const pair of formData) {
+                searchParams.append(pair[0], pair[1]);
+            }
+
+            // 3. Kirim data menggunakan Fetch API dengan metode POST
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Mode no-cors wajib digunakan untuk pengiriman lintas domain ke Apps Script
+                body: searchParams
+            })
+            .then(() => {
+                // Karena menggunakan mode 'no-cors', browser tidak bisa membaca respons JSON asli dari Google,
+                // namun jika masuk ke blok .then(), artinya data berhasil terkirim keluar.
+                alert("Terima kasih! Penilaian kuesioner Anda berhasil dikirim dan disimpan.");
+                form.reset(); // Mengosongkan form kembali setelah sukses
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Terjadi kesalahan saat mengirim data. Silakan coba beberapa saat lagi.");
+            })
+            .finally(() => {
+                // 4. Kembalikan status tombol seperti semula
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+                submitButton.classList.remove('opacity-70', 'cursor-not-allowed');
+            });
+        });
     </script>
 </body>
 </html>
