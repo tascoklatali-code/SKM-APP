@@ -102,19 +102,22 @@
                         const iconMutu = document.getElementById("iconMutu");
                         const mutuEl = document.getElementById("mutuPelayanan");
 
-                        if (data.mutu_pelayanan.includes("A")) {
+                        // Menggunakan startsWith agar hanya mendeteksi huruf depan (A, B, C, atau D)
+                        const mutuTeks = data.mutu_pelayanan.trim().toUpperCase();
+
+                        if (mutuTeks.startsWith("A")) {
                             cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-emerald-500";
                             iconMutu.className = "pr-4 flex items-center justify-center text-emerald-600";
                             mutuEl.className = "text-2xl font-extrabold text-emerald-600 mt-0.5";
-                        } else if (data.mutu_pelayanan.includes("B")) {
+                        } else if (mutuTeks.startsWith("B")) {
                             cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-blue-500";
                             iconMutu.className = "pr-4 flex items-center justify-center text-blue-500";
                             mutuEl.className = "text-2xl font-extrabold text-blue-500 mt-0.5";
-                        } else if (data.mutu_pelayanan.includes("C")) {
+                        } else if (mutuTeks.startsWith("C")) {
                             cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-amber-500";
                             iconMutu.className = "pr-4 flex items-center justify-center text-amber-500";
                             mutuEl.className = "text-2xl font-extrabold text-amber-500 mt-0.5";
-                        } else {
+                        } else if (mutuTeks.startsWith("D")) {
                             cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-red-500";
                             iconMutu.className = "pr-4 flex items-center justify-center text-red-500";
                             mutuEl.className = "text-2xl font-extrabold text-red-500 mt-0.5";
