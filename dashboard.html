@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard IKM - Survei Kepuasan Masyarakat</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-100 font-sans antialiased">
+
+    <header class="bg-blue-600 text-white shadow-md py-6 px-4 mb-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">DASHBOARD REAL-TIME IKM</h1>
+                <p class="text-blue-100 text-sm mt-1">Berdasarkan Permenpan RB Nomor 14 Tahun 2017</p>
+            </div>
+            <a href="index.html" class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow transition">
+                &larr; Kembali ke Kuesioner
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 pb-12">
+        <div id="loadingStatus" class="bg-white p-8 rounded-xl shadow-sm text-center font-medium text-slate-600">
+            <span class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent mr-3 align-middle"></span>
+            Memuat dan mengalkulasi data dari Google Sheets...
+        </div>
+
+        <div id="dashboardContent" class="hidden space-y-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-slate-500">
+                    <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Responden</p>
+                    <p id="totalResponden" class="text-4xl font-extrabold text-slate-800 mt-2">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-600">
+                    <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Nilai Akhir IKM</p>
+                    <p id="nilaiIKM" class="text-4xl font-extrabold text-blue-600 mt-2">0.00</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
+                    <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Mutu Pelayanan</p>
+                    <p id="mutuPelayanan" class="text-3xl font-extrabold text-emerald-600 mt-2">-</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-lg font-bold text-slate-800 mb-4">Grafik Nilai Rata-Rata (NRR) Per Unsur Pelayanan</h2>
+                <div class="relative w-full h-[350px]">
+                    <canvas id="ikmChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // PENTING: Ganti URL di bawah ini dengan Web App URL Google Apps Script Anda yang aktif!
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzzrQsu1RnpfZYWESgSo2mFb1LryZV1zEOJMhqCOETXfEFZHUz4_QtgpFixGwfRrTerQ/exec";
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Mengambil data dari Google Apps Script melalui doGet
+            fetch(WEB_APP_URL)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        // 1. Update ringkasan nilai teks di card dashboard
+                        document.getElementById("totalResponden").innerText = data.total_responden;
+                        document.getElementById("nilaiIKM").innerText = data.nilai_ikm.toFixed(2);
+                        document.getElementById("mutuPelayanan").innerText = data.mutu_pelayanan;
+
+                        // Tentukan warna teks mutu pelayanan secara dinamis
+                        const mutuEl = document.getElementById("mutuPelayanan");
+                        if (data.mutu_pelayanan.includes("A")) mutuEl.className = "text-3xl font-extrabold text-emerald-600 mt-2";
+                        else if (data.mutu_pelayanan.includes("B")) mutuEl.className = "text-3xl font-extrabold text-blue-600 mt-2";
+                        else if (data.mutu_pelayanan.includes("C")) mutuEl.className = "text-3xl font-extrabold text-amber-500 mt-2";
+                        else mutuEl.className = "text-3xl font-extrabold text-red-600 mt-2";
+
+                        // 2. Buat Grafik Batang Chart.js
+                        const ctx = document.getElementById('ikmChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8', 'U9'],
+                                datasets: [{
+                                    label: 'Nilai Rata-Rata Unsur',
+                                    data: data.nrr_unsur,
+                                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                                    borderColor: 'rgba(37, 99, 235, 1)',
+                                    borderWidth: 2,
+                                    borderRadius: 6,
+                                    barThickness: 30
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 4, // Skala nilai kuesioner maksimal 4
+                                        ticks: { stepSize: 1 }
+                                    }
+                                },
+                                plugins: {
+                                    legend: { display: false }
+                                }
+                            }
+                        });
+
+                        // Tukar tampilan dari loading ke konten dashboard
+                        document.getElementById("loadingStatus").classList.add("hidden");
+                        document.getElementById("dashboardContent").classList.remove("hidden");
+                    } else {
+                        document.getElementById("loadingStatus").innerText = "Gagal memuat data kalkulasi.";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    document.getElementById("loadingStatus").innerText = "Terjadi kesalahan koneksi saat mengambil data.";
+                });
+        });
+    </script>
+</body>
+</html>
