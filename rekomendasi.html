@@ -77,7 +77,7 @@
         async function generateRekomendasiAI() {
             // Jika API Key belum tersimpan di browser, minta input dari user secara aman
             if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
-                const inputKey = prompt("AQ.Ab8RN6IXXgCoga_31R2vB5SuZ7bAJWP2aEbHe5s7NwGZA2JpDQ");
+                const inputKey = prompt("AQ.Ab8RN6LYl1jaCdR7WeVC5rNGAxWMJWxUMYEpaYFsUWLAPl2bpw");
                 if (inputKey && inputKey.trim() !== "") {
                     GEMINI_API_KEY = inputKey.trim();
                     localStorage.setItem('gemini_api_key', GEMINI_API_KEY);
@@ -131,7 +131,7 @@ Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pel
             promptText += `\nBerikan rekomendasi tindakan perbaikan konkret, taktis, dan aplikatif untuk masing-masing dari ke-4 unsur di atas agar kualitas pelayanan publik dapat meningkat secara signifikan sesuai standar regulasi Menpan RB. Gunakan format Markdown yang rapi dengan poin-poin yang jelas dan profesional.`;
 
             // 3. Melakukan HTTP POST request langsung ke Endpoint API Gemini 1.5 Flash (Versi Stabil)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent=${AQ.Ab8RN6IXXgCoga_31R2vB5SuZ7bAJWP2aEbHe5s7NwGZA2JpDQ}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent=${AQ.Ab8RN6LYl1jaCdR7WeVC5rNGAxWMJWxUMYEpaYFsUWLAPl2bpw}`;
 
             try {
                 const response = await fetch(url, {
