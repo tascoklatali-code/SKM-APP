@@ -50,9 +50,8 @@
     </div>
 
     <script>
-        // Catatan: Ganti dengan API Key Gemini resmi Anda. 
-        // Untuk keamanan tingkat produksi, disarankan memanggil API ini lewat backend/Cloud Functions.
-        const GEMINI_API_KEY = "PASTE_API_KEY_GEMINI_ANDA_DISINI"; 
+      // Mengambil API Key dari penyimpanan browser (localStorage) agar aman dari GitHub Scanner
+        let GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || "";
 
         // Simulasi data dummy unsur jika data dari dashboard/Google Sheets belum ditarik.
         // Formatnya disesuaikan dengan variabel 'data.nrr_unsur' dari dashboard Anda.
@@ -76,6 +75,18 @@
         });
 
         async function generateRekomendasiAI() {
+            // Jika API Key belum tersimpan di browser, minta input dari user secara aman
+            if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
+                const inputKey = prompt("Masukkan API Key Gemini Anda (Aman, hanya disimpan lokal di browser Anda):");
+                if (inputKey && inputKey.trim() !== "") {
+                    GEMINI_API_KEY = inputKey.trim();
+                    localStorage.setItem('gemini_api_key', GEMINI_API_KEY);
+                } else {
+                    document.getElementById('geminiOutput').innerHTML = `<p class="text-amber-600 font-medium">⚠️ API Key diperlukan untuk menghasilkan rekomendasi AI. Silakan muat ulang halaman untuk memasukkan key.</p>`;
+                    document.getElementById('aiLoading').classList.add('hidden');
+                    return;
+                }
+            }
             const loadingEl = document.getElementById('aiLoading');
             const contentEl = document.getElementById('aiContent');
             const outputEl = document.getElementById('geminiOutput');
