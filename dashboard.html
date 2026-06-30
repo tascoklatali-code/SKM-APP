@@ -147,11 +147,35 @@
                                 datasets: [{
                                     label: 'Nilai Rata-Rata Unsur',
                                     data: data.nrr_unsur,
-                                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                                    borderColor: 'rgba(37, 99, 235, 1)',
-                                    borderWidth: 2,
-                                    borderRadius: 6,
-                                    barThickness: 30
+                                    backgroundColor: function(context) {
+                                const chart = context.chart;
+                                const { data: chartData } = chart.data.datasets[0];
+                                if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 0.2)';
+                                
+                                const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
+                                indexedData.sort((a, b) => a.val - b.val);
+                                
+                                const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
+                                return lowestIndices.includes(context.dataIndex) 
+                                    ? 'rgba(255, 80, 80, 0.2)' 
+                                    : 'rgba(37, 99, 235, 0.2)';
+                            },
+                            borderColor: function(context) {
+                                const chart = context.chart;
+                                const { data: chartData } = chart.data.datasets[0];
+                                if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 1)';
+                                
+                                const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
+                                indexedData.sort((a, b) => a.val - b.val);
+                                
+                                const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
+                                return lowestIndices.includes(context.dataIndex) 
+                                    ? '#ff5050' 
+                                    : 'rgba(37, 99, 235, 1)';
+                            },
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            barThickness: 30
                                 }]
                             },
                             options: {
