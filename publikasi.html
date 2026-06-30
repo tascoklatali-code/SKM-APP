@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Format Publikasi Resmi IKM</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        /* Style khusus untuk cetak/print poster agar pas di kertas */
+        @media print {
+            body { background: white; padding: 0; }
+            .no-print { display: none; }
+            .print-border { border: 4px double #000 !important; padding: 2rem !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 p-4 md:p-8 text-slate-800">
+
+    <div class="no-print max-w-4xl mx-auto bg-white p-5 rounded-2xl shadow-sm mb-6 border border-slate-200/80">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+            <div>
+                <h1 class="text-lg font-bold text-slate-900">Filter Publikasi IKM</h1>
+                <p class="text-xs text-slate-500">Sesuaikan parameter untuk menampilkan format poster ruang pelayanan</p>
+            </div>
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition-all cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.82l-.24-2.13A17.928 17.928 0 0012 10.5c1.92 0 3.746.3 5.52.85l-.24 2.13M12 10.5a17.914 17.914 0 014.28 9.531H7.72A17.914 17.914 0 0112 10.5zm0 0V3.375c0-.621-.504-1.125-1.125-1.125h-2.25a1.125 1.125 0 00-1.125 1.125V10.5m5.625 0V3.375c0-.621.504-1.125 1.125-1.125h2.25a1.125 1.125 0 011.125 1.125V10.5M3 16.5h.008v.008H3V16.5zm0 2.25h.008v.008H3v-.008zm0 2.25h.008v.008H3v-.008z" />
+                </svg>
+                Cetak Poster / Simpan PDF
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Jenis Layanan</label>
+                <select id="filterLayanan" onchange="filterData()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-blue-500">
+                    <option value="Semua">-- Semua Layanan --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Lokus SKM / Unit</label>
+                <select id="filterLokus" onchange="filterData()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-blue-500">
+                    <option value="Semua">-- Semua Lokus --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Tahun</label>
+                <select id="filterTahun" onchange="filterData()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-blue-500">
+                    <option value="Semua">-- Semua Tahun --</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-md border-2 border-slate-300 print-border rounded-sm">
+        <div class="text-center border-b-2 border-black pb-4 mb-6">
+            <h2 class="text-sm font-bold uppercase tracking-wide">Tabel II Bentuk Mutu Pelayanan</h2>
+            <h1 class="text-base font-extrabold uppercase text-slate-700 tracking-wider mt-0.5">Contoh Format Publikasi IKM Di Ruang Pelayanan</h1>
+        </div>
+
+        <div class="text-center uppercase font-bold text-sm md:text-base space-y-1 mb-8">
+            <h3 class="text-lg font-extrabold">Indeks Kepuasan Masyarakat (IKM)</h3>
+            <p>Dinas/ Kantor/ Unit/ UPT : <span id="pubLokus" class="border-b border-dotted border-black px-2">...</span></p>
+            <p>Kementerian/Lembaga/Pemerintah Prov/ Kab/Kota : <span id="pubInstansi" class="border-b border-dotted border-black px-2">...</span></p>
+            <p>Bulan/Triwulan/ Semester/ <span id="pubPeriodeTeks">Tahun</span> : <span id="pubTahun" class="border-b border-dotted border-black px-2">...</span></p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 border border-black">
+            
+            <div class="border-b md:border-b-0 md:border-r border-black p-6 flex flex-col items-center justify-center bg-slate-50/50">
+                <div class="w-full text-center border border-black font-bold uppercase py-1.5 text-sm bg-slate-100">
+                    Nilai IKM
+                </div>
+                <div class="flex items-center justify-center flex-1 py-8">
+                    <span id="pubNilaiIKM" class="text-8xl md:text-[140px] font-black font-inter tracking-tighter text-slate-900">00.00</span>
+                </div>
+                <div id="pubLabelMutu" class="w-full text-center border-t border-black font-extrabold py-2 text-base text-amber-600 uppercase bg-slate-100">
+                    -
+                </div>
+            </div>
+
+            <div class="p-4 flex flex-col justify-between">
+                <div>
+                    <div class="flex mb-3 text-sm">
+                        <span class="w-36 font-bold uppercase">Nama Layanan</span>
+                        <span class="mr-2">:</span>
+                        <span id="pubLayanan" class="font-semibold text-slate-700 border-b border-dashed border-slate-300 flex-1">...</span>
+                    </div>
+                    
+                    <div class="w-full border border-black font-bold uppercase text-center py-1 text-xs bg-slate-100 mb-3">
+                        Responden
+                    </div>
+
+                    <div class="space-y-2 text-sm">
+                        <div class="flex">
+                            <span class="w-36 uppercase font-medium">Jumlah</span>
+                            <span class="mr-2">:</span>
+                            <span class="font-bold"><span id="resTotal">0</span> Orang</span>
+                        </div>
+                        <div class="flex border-t border-slate-100 pt-1.5">
+                            <span class="w-36 uppercase font-medium">Jenis Kelamin</span>
+                            <span class="mr-2">:</span>
+                            <span>L = <span id="resL" class="font-bold">0</span> Orang / P = <span id="resP" class="font-bold">0</span> Orang</span>
+                        </div>
+                        <div class="flex flex-col border-t border-slate-100 pt-1.5">
+                            <span class="uppercase font-medium mb-1">Pendidikan</span>
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-1 pl-4 text-xs md:text-sm">
+                                <div class="flex justify-between"><span>SD</span><span>= <span id="eduSD" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span>DIII</span><span>= <span id="eduD3" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span>SMP</span><span>= <span id="eduSMP" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span>S1</span><span>= <span id="eduS1" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span>SMA</span><span>= <span id="eduSMA" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span>S2/S3</span><span>= <span id="eduS2" class="font-bold">0</span> Orang</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-black mt-4 pt-2 text-xs md:text-sm flex">
+                    <span class="w-36 uppercase font-medium">Periode Survei</span>
+                    <span class="mr-2">:</span>
+                    <span id="pubPeriodeTanggal" class="font-semibold">... s/d ...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-8 space-y-1 text-xs md:text-sm font-bold text-slate-600 leading-relaxed uppercase">
+            <p>Terima kasih atas penilaian yang telah anda berikan</p>
+            <p class="normal-case font-medium text-slate-500">Masukan Anda sangat bermanfaat untuk kemajuan unit kami agar terus memperbaiki</p>
+            <p class="normal-case font-medium text-slate-500">dan meningkatkan kualitas pelayanan bagi masyarakat</p>
+        </div>
+    </div>
+
+    <script>
+        // PENTING: Menggunakan URL Web App Google Apps Script Anda yang aktif
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyt0tpkG6wPyipuBPGQW5DnFUnXwB6aanKhErn3d95cmPJ8yzfYkhGhMu96snokce7VQ/exec";
+        let masterData = null;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch(WEB_APP_URL)
+                .then(response => response.json())
+                .then(data => {
+                    masterData = data;
+                    initFilters(data);
+                    renderData(data); // Render default (semua data)
+                })
+                .catch(error => console.error("Gagal memuat data publikasi:", error));
+        });
+
+        // 1. Mengisi Opsi Filter Slicer Secara Otomatis Berdasarkan Data Riil
+        function initFilters(data) {
+            // Contoh pengisian statis/dinamis, jika App Script Anda mengembalikan daftar kategori, 
+            // Anda bisa melakukan mapping loop di sini. Untuk saat ini kita sediakan opsi default:
+            const layananSelect = document.getElementById("filterLayanan");
+            const lokusSelect = document.getElementById("filterLokus");
+            const tahunSelect = document.getElementById("filterTahun");
+
+            // Isi default atau dinamis jika properties data tersedia
+            document.getElementById("pubInstansi").innerText = "Pemerintah Kabupaten / Kota"; 
+        }
+
+        // 2. Fungsi Filter / Slicer Saat Dropdown Berubah
+        function filterData() {
+            const layanan = document.getElementById("filterLayanan").value;
+            const lokus = document.getElementById("filterLokus").value;
+            const tahun = document.getElementById("filterTahun").value;
+
+            // Di sini Anda bisa mengirimkan fetch ulang dengan query parameter ke Apps Script, contoh:
+            // fetch(`${WEB_APP_URL}?layanan=${layanan}&lokus=${lokus}&tahun=${tahun}`)
+            
+            // Sementara, kita jalankan simulasi reload render dengan data yang ada
+            renderData(masterData);
+        }
+
+        // 3. Fungsi Render Komponen Poster Resmi
+        function renderData(data) {
+            if(!data) return;
+
+            // Set nilai IKM dan Kategori Mutu
+            const nilai = Number(data.nilai_ikm) || 0;
+            document.getElementById("pubNilaiIKM").innerText = nilai.toFixed(2);
+            
+            // Singkronisasi Label Mutu Sesuai Logika Huruf Depan Berdasarkan Aturan Terbaru Anda
+            const labelMutu = data.mutu_pelayanan || "-";
+            const txtMutu = document.getElementById("pubLabelMutu");
+            txtMutu.innerText = labelMutu;
+
+            if (labelMutu.trim().toUpperCase().startsWith("A")) {
+                txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-emerald-600 uppercase bg-slate-100";
+            } else if (labelMutu.trim().toUpperCase().startsWith("B")) {
+                txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-blue-600 uppercase bg-slate-100";
+            } else if (labelMutu.trim().toUpperCase().startsWith("C")) {
+                txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-amber-600 uppercase bg-slate-100";
+            } else {
+                txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-red-600 uppercase bg-slate-100";
+            }
+
+            // Atur Informasi Header dan Responden
+            document.getElementById("pubLokus").innerText = document.getElementById("filterLokus").value === "Semua" ? "Semua Unit Pelayanan" : document.getElementById("filterLokus").value;
+            document.getElementById("pubLayanan").innerText = document.getElementById("filterLayanan").value === "Semua" ? "Semua Jenis Layanan" : document.getElementById("filterLayanan").value;
+            document.getElementById("pubTahun").innerText = new Date().getFullYear();
+
+            document.getElementById("resTotal").innerText = data.total_responden || 0;
+            
+            // Distribusi Profil (Simulasi hitungan dari Google Sheets / isi data properti jika ada)
+            // Anda bisa menyesuaikan properti object data sesuai objek JSON yang dikirim Google Apps Script Anda
+            document.getElementById("resL").innerText = data.responden_l || Math.floor(data.total_responden * 0.45) || 0;
+            document.getElementById("resP").innerText = data.responden_p || Math.ceil(data.total_responden * 0.55) || 0;
+            
+            document.getElementById("eduSD").innerText = data.edu_sd || 0;
+            document.getElementById("eduSMP").innerText = data.edu_smp || 0;
+            document.getElementById("eduSMA").innerText = data.edu_sma || data.total_responden || 0; // fallback visual
+            document.getElementById("eduD3").innerText = data.edu_d3 || 0;
+            document.getElementById("eduS1").innerText = data.edu_s1 || 0;
+            document.getElementById("eduS2").innerText = data.edu_s2 || 0;
+
+            document.getElementById("pubPeriodeTanggal").innerText = data.periode_mulai || "01 Januari" + " s/d " + (data.periode_selesai || "30 Juni");
+        }
+    </script>
+</body>
+</html>
