@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekomendasi & Tindak Lanjut AI - SKM</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-100 font-sans antialiased text-slate-800">
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    ✨ Rekomendasi & Tindak Lanjut Berbasis AI
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">Analisis otomatis menggunakan Generative AI Gemini berdasarkan 4 unsur pelayanan terendah.</p>
+            </div>
+            <a href="dashboard.html" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition-all no-underline">
+                &larr; Kembali ke Dashboard
+            </a>
+        </div>
+
+        <div id="aiLoading" class="bg-white p-8 rounded-2xl shadow-sm text-center border border-slate-200/80">
+            <span class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-3"></span>
+            <p class="text-sm font-medium text-slate-600">Gemini sedang menganalisis data unsur dan menyusun rencana perbaikan...</p>
+        </div>
+
+        <div id="aiContent" class="hidden space-y-6">
+            
+            <div class="bg-red-50 border border-red-200 p-5 rounded-2xl">
+                <h3 class="text-sm font-bold text-red-800 mb-3">⚠️ 4 Unsur Prioritas Utama Perbaikan (Skor Terendah):</h3>
+                <div id="lowElementsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-semibold text-slate-700">
+                    </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
+                <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Hasil Analisis Otomatis Gemini AI</span>
+                    <button onclick="generateRekomendasiAI()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg transition-all cursor-pointer">
+                        🔄 Regenerasi Analisis
+                    </button>
+                </div>
+                
+                <div id="geminiOutput" class="prose max-w-none text-sm leading-relaxed text-slate-700 space-y-4">
+                    </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Catatan: Ganti dengan API Key Gemini resmi Anda. 
+        // Untuk keamanan tingkat produksi, disarankan memanggil API ini lewat backend/Cloud Functions.
+        const GEMINI_API_KEY = "PASTE_API_KEY_GEMINI_ANDA_DISINI"; 
+
+        // Simulasi data dummy unsur jika data dari dashboard/Google Sheets belum ditarik.
+        // Formatnya disesuaikan dengan variabel 'data.nrr_unsur' dari dashboard Anda.
+        const dataUnsurNyata = {
+            'U1': 3.5, 'U2': 3.0, 'U3': 2.5, 'U4': 2.5, 
+            'U5': 3.0, 'U6': 2.5, 'U7': 2.0, 'U8': 2.5, 'U9': 2.5
+        };
+
+        const namaUnsurLengkap = {
+            'U1': 'Persyaratan', 'U2': 'Sistem, Mekanisme, dan Prosedur', 
+            'U3': 'Waktu Penyelesaian', 'U4': 'Biaya/Tarif',
+            'U5': 'Produk Spesifikasi Jenis Pelayanan', 'U6': 'Kompetensi Pelaksana',
+            'U7': 'Perilaku Pelaksana', 'U8': 'Maklumat Pelayanan',
+            'U9': 'Penanganan Pengaduan, Saran, dan Masukan'
+        };
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Jika Anda sudah mengintegrasikan database Google Sheets, Anda bisa mengambil 
+            // data nrr_unsur real dari localStorage atau fungsi fetch database Anda di sini.
+            generateRekomendasiAI();
+        });
+
+        async function generateRekomendasiAI() {
+            const loadingEl = document.getElementById('aiLoading');
+            const contentEl = document.getElementById('aiContent');
+            const outputEl = document.getElementById('geminiOutput');
+            const listEl = document.getElementById('lowElementsList');
+
+            loadingEl.classList.remove('hidden');
+            contentEl.classList.add('hidden');
+
+            // 1. Mengurutkan dan mengambil 4 unsur dengan nilai terendah
+            const sortedUnsur = Object.keys(dataUnsurNyata)
+                .map(key => ({ id: key, nama: namaUnsurLengkap[key], skor: dataUnsurNyata[key] }))
+                .sort((a, b) => a.skor - b.skor) // Urutkan dari skor terkecil ke terbesar
+                .slice(0, 4); // Ambil 4 teratas
+
+            // Tampilkan daftar unsur terendah di UI
+            listEl.innerHTML = sortedUnsur.map((u, index) => `
+                <div class="bg-white p-3 rounded-xl border border-red-100 shadow-2xs flex items-center justify-between">
+                    <span>${index + 1}. [${u.id}] ${u.nama}</span>
+                    <span class="text-red-600 bg-red-100 px-2 py-0.5 rounded-md">${u.skor.toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            // 2. Menyusun Instruksi (Prompt) Masukan untuk Gemini AI
+            const promptContext = `Anda adalah seorang ahli analis pelayanan publik kedinasan. Berdasarkan hasil Survei Kepuasan Masyarakat (SKM), berikut adalah 4 unsur pelayanan dengan nilai TERENDAH yang memerlukan perbaikan mendesak (diurutkan dari yang paling buruk/prioritas utama):
+            ${sortedUnsur.map((u, i) => `${i+1}. Unsur ${u.id} (${u.nama}) dengan skor NRR: ${u.skor}`).join('\n')}
+
+            Tolong buatkan dokumen laporan analisis yang rapi yang berisi:
+            1. **Rekomendasi Strategis**: Berikan solusi konkret dan inovatif untuk masing-masing dari ke-4 unsur di atas secara berurutan berdasarkan skala prioritasnya.
+            2. **Rencana Tindak Lanjut (RTL)**: Buat dalam bentuk langkah kerja taktis operasional (target waktu, bagian penanggung jawab, dan aksi nyata) agar nilai unsur tersebut bisa meningkat di periode survei berikutnya.
+
+            Gunakan bahasa Indonesia yang formal, solutif, profesional, serta mudah dipahami oleh aparatur pelayanan publik. Jangan gunakan markdown mentah yang merusak teks, buat judul sub-bab tebal yang estetik.`;
+
+            // 3. Melakukan Request Ke API Gemini (Model gemini-1.5-flash)
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptContext }] }]
+                    })
+                });
+
+                const jsonResult = await response.json();
+                let textResult = jsonResult.candidates[0].content.parts[0].text;
+
+                // Mengubah format markdown sederhana (* atau **) menjadi tag HTML agar tampil cantik
+                textResult = textResult
+                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-950 font-bold block mt-3">$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>');
+
+                outputEl.innerHTML = textResult;
+            } catch (error) {
+                console.error(error);
+                outputEl.innerHTML = `<p class="text-red-600 font-medium">Gagal memuat rekomendasi otomatis. Pastikan API Key Gemini sudah terisi dengan benar atau periksa koneksi internet Anda.</p>`;
+            } finally {
+                loadingEl.classList.add('hidden');
+                contentEl.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
