@@ -3,81 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekomendasi & Tindak Lanjut AI - SKM</title>
+    <title>Rekomendasi AI - Survei Kepuasan Masyarakat</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-slate-100 font-sans antialiased text-slate-800">
 
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
             <div>
                 <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                     ✨ Rekomendasi & Tindak Lanjut Berbasis AI
                 </h1>
-                <p class="text-xs text-slate-500 mt-1">Analisis otomatis menggunakan Generative AI Gemini berdasarkan 4 unsur pelayanan terendah.</p>
+                <p class="text-sm text-slate-500 mt-1">Analisis otomatis menggunakan Generative AI Gemini berdasarkan 4 unsur pelayanan terendah.</p>
             </div>
-            <a href="dashboard.html" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition-all no-underline">
+            <a href="dashboard.html" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold py-2 px-4 rounded-xl shadow-sm transition no-underline">
                 &larr; Kembali ke Dashboard
             </a>
         </div>
 
-        <div id="aiLoading" class="bg-white p-8 rounded-2xl shadow-sm text-center border border-slate-200/80">
-            <span class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-3"></span>
-            <p class="text-sm font-medium text-slate-600">Gemini sedang menganalisis data unsur dan menyusun rencana perbaikan...</p>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6">
+            <h3 class="text-sm font-bold text-red-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+                ⚠️ 4 Unsur Prioritas Utama Perbaikan (Skor Terendah):
+            </h3>
+            <div id="lowElementsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </div>
         </div>
 
-        <div id="aiContent" class="hidden space-y-6">
-            
-            <div class="bg-red-50 border border-red-200 p-5 rounded-2xl">
-                <h3 class="text-sm font-bold text-red-800 mb-3">⚠️ 4 Unsur Prioritas Utama Perbaikan (Skor Terendah):</h3>
-                <div id="lowElementsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-semibold text-slate-700">
-                    </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
+                <h3 class="text-xs font-bold text-blue-600 uppercase tracking-wider">
+                    Hasil Analisis Otomatis Gemini AI
+                </h3>
+                <button onclick="regenerateAnalisis()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium py-1.5 px-3 rounded-lg border border-slate-200 transition flex items-center gap-1 cursor-pointer">
+                    🔄 Regenerasi Analisis
+                </button>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
-                <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Hasil Analisis Otomatis Gemini AI</span>
-                    <button onclick="generateRekomendasiAI()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg transition-all cursor-pointer">
-                        🔄 Regenerasi Analisis
-                    </button>
-                </div>
-                
+            <div id="aiLoading" class="py-12 flex flex-col items-center justify-center gap-3">
+                <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-sm text-slate-500 font-medium">Gemini AI sedang merumuskan rekomendasi taktis perbaikan...</p>
+            </div>
+
+            <div id="aiContent" class="hidden">
                 <div id="geminiOutput" class="prose max-w-none text-sm leading-relaxed text-slate-700 space-y-4">
                     </div>
             </div>
-
         </div>
     </div>
 
     <script>
-      // Mengambil API Key dari penyimpanan browser (localStorage) agar aman dari GitHub Scanner
-        let GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || "";
+        // Mengambil API Key dari penyimpanan lokal browser (localStorage) agar aman dari GitHub Scanner
+        let GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || ""; 
 
-        // Simulasi data dummy unsur jika data dari dashboard/Google Sheets belum ditarik.
-        // Formatnya disesuaikan dengan variabel 'data.nrr_unsur' dari dashboard Anda.
+        // Simulasi data real-time nilai unsur SKM
         const dataUnsurNyata = {
             'U1': 3.5, 'U2': 3.0, 'U3': 2.5, 'U4': 2.5, 
             'U5': 3.0, 'U6': 2.5, 'U7': 2.0, 'U8': 2.5, 'U9': 2.5
         };
 
+        // Kamus nama lengkap singkatan unsur berdasarkan Permenpan RB
         const namaUnsurLengkap = {
-            'U1': 'Persyaratan', 'U2': 'Sistem, Mekanisme, dan Prosedur', 
-            'U3': 'Waktu Penyelesaian', 'U4': 'Biaya/Tarif',
-            'U5': 'Produk Spesifikasi Jenis Pelayanan', 'U6': 'Kompetensi Pelaksana',
-            'U7': 'Perilaku Pelaksana', 'U8': 'Maklumat Pelayanan',
+            'U1': 'Persyaratan', 
+            'U2': 'Sistem, Mekanisme, dan Prosedur', 
+            'U3': 'Waktu Penyelesaian', 
+            'U4': 'Biaya/Tarif',
+            'U5': 'Produk Spesifikasi Jenis Pelayanan', 
+            'U6': 'Kompetensi Pelaksana',
+            'U7': 'Perilaku Pelaksana', 
+            'U8': 'Maklumat Pelayanan',
             'U9': 'Penanganan Pengaduan, Saran, dan Masukan'
         };
 
+        // Pemicu otomatis jalankan fungsi setelah struktur dokumen siap
         document.addEventListener("DOMContentLoaded", function() {
-            // Jika Anda sudah mengintegrasikan database Google Sheets, Anda bisa mengambil 
-            // data nrr_unsur real dari localStorage atau fungsi fetch database Anda di sini.
             generateRekomendasiAI();
         });
 
+        // Fungsi utama untuk memanggil AI Gemini
         async function generateRekomendasiAI() {
-            // Jika API Key belum tersimpan di browser, minta input dari user secara aman
+            // Minta input token jika memori penyimpanan kosong
             if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
-                const inputKey = prompt("AQ.Ab8RN6LYl1jaCdR7WeVC5rNGAxWMJWxUMYEpaYFsUWLAPl2bpw");
+                const inputKey = prompt("Masukkan API Key Gemini Anda (Aman, hanya disimpan lokal di browser Anda):");
                 if (inputKey && inputKey.trim() !== "") {
                     GEMINI_API_KEY = inputKey.trim();
                     localStorage.setItem('gemini_api_key', GEMINI_API_KEY);
@@ -97,18 +103,18 @@
             contentEl.classList.add('hidden');
             listEl.innerHTML = '';
 
-            // 1. Mengurutkan skor unsur dari yang terendah
+            // 1. Mengurutkan skor unsur dari koordinat terkecil ke terbesar
             const sortedUnsur = Object.keys(dataUnsurNyata)
                 .map(key => ({ id: key, nama: namaUnsurLengkap[key], skor: dataUnsurNyata[key] }))
                 .sort((a, b) => a.skor - b.skor);
 
-            // Ambil 4 unsur dengan skor terendah sebagai prioritas perbaikan
+            // Ambil top 4 unsur terendah
             const prioritas = sortedUnsur.slice(0, 4);
 
-            // Tampilkan daftar 4 unsur terendah ke dalam komponen UI Card Box
+            // Cetak struktur visual box unsur terendah
             prioritas.forEach((unsur, index) => {
                 const card = document.createElement('div');
-                card.className = 'bg-slate-50 border border-slate-200 rounded-xl p-4 flex justify-between items-center shadow-sm';
+                card.className = 'bg-white border border-slate-200 rounded-xl p-4 flex justify-between items-center shadow-xs';
                 card.innerHTML = `
                     <div class="text-sm font-medium text-slate-700">
                         <span class="text-slate-400 font-bold mr-1">${index + 1}.</span> [${unsur.id}] ${unsur.nama}
@@ -120,7 +126,7 @@
                 listEl.appendChild(card);
             });
 
-            // 2. Menyusun teks prompt instruksi analisis untuk dikirim ke Gemini AI
+            // 2. Menyusun struktur teks perintah prompt
             let promptText = `Anda adalah seorang ahli Analis Pelayanan Publik dan Kepuasan Masyarakat profesional di Indonesia. 
 Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pelayanan dengan nilai koordinat indeks terendah yang memerlukan tindakan perbaikan segera:\n\n`;
 
@@ -130,8 +136,8 @@ Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pel
 
             promptText += `\nBerikan rekomendasi tindakan perbaikan konkret, taktis, dan aplikatif untuk masing-masing dari ke-4 unsur di atas agar kualitas pelayanan publik dapat meningkat secara signifikan sesuai standar regulasi Menpan RB. Gunakan format Markdown yang rapi dengan poin-poin yang jelas dan profesional.`;
 
-            // 3. Melakukan HTTP POST request langsung ke Endpoint API Gemini 1.5 Flash (Versi Stabil)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent=${AQ.Ab8RN6LYl1jaCdR7WeVC5rNGAxWMJWxUMYEpaYFsUWLAPl2bpw}`;
+            // 3. Eksekusi Request Post ke Endpoint Gemini 2.5 Flash Terbaru
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             try {
                 const response = await fetch(url, {
@@ -153,11 +159,9 @@ Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pel
                 }
 
                 const data = await response.json();
-                
-                // Mengambil teks respons mentah dari struktur JSON Gemini
                 const rawMarkdown = data.candidates[0].content.parts[0].text;
 
-                // Mengonversi teks format Markdown dasar menjadi HTML agar tampil cantik di browser
+                // Regex parser untuk mengubah teks format Markdown menjadi HTML bersih
                 const htmlContent = rawMarkdown
                     .replace(/^### (.*$)/gim, '<h4 class="text-lg font-bold text-slate-800 mt-4 mb-2">$1</h4>')
                     .replace(/^## (.*$)/gim, '<h3 class="text-xl font-bold text-slate-800 mt-5 mb-3">$1</h3>')
@@ -171,15 +175,31 @@ Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pel
 
             } catch (error) {
                 console.error("Gemini API Error:", error);
-                outputEl.innerHTML = `
-                    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
-                        <p class="font-semibold">⚠️ Gagal memuat rekomendasi otomatis.</p>
-                        <p class="text-xs mt-1 text-red-500">Detail Kesalahan: ${error.message}. Pastikan API Key Anda aktif atau coba segarkan kembali halaman browser Anda.</p>
-                    </div>`;
+                
+                // Menangani kondisi jika API key ditolak (Error 401)
+                if (error.message.includes("401")) {
+                    localStorage.removeItem('gemini_api_key');
+                    outputEl.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
+                            <p class="font-semibold">⚠️ API Key Ditolak (Error 401).</p>
+                            <p class="text-xs mt-1 text-red-500">Kunci lama yang tersimpan di memori browser Anda salah atau tidak valid. Penyimpanan lokal telah disetel ulang otomatis. Silakan lakukan <strong>Muat Ulang / Refresh Halaman Ini</strong> untuk memicu pop-up input kunci yang baru.</p>
+                        </div>`;
+                } else {
+                    outputEl.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
+                            <p class="font-semibold">⚠️ Gagal memuat rekomendasi otomatis.</p>
+                            <p class="text-xs mt-1 text-red-500">Detail Kesalahan: ${error.message}. Pastikan status koneksi internet Anda stabil atau cek kembali kuota harian API Anda.</p>
+                        </div>`;
+                }
             } finally {
                 loadingEl.className = 'hidden';
                 contentEl.classList.remove('hidden');
             }
+        }
+
+        // Fungsi pembantu pemicu tombol pemuatan ulang rekomendasi
+        function regenerateAnalisis() {
+            generateRekomendasiAI();
         }
     </script>
 </body>
