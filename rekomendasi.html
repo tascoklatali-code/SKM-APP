@@ -131,7 +131,7 @@ Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pel
             promptText += `\nBerikan rekomendasi tindakan perbaikan konkret, taktis, dan aplikatif untuk masing-masing dari ke-4 unsur di atas agar kualitas pelayanan publik dapat meningkat secara signifikan sesuai standar regulasi Menpan RB. Gunakan format Markdown yang rapi dengan poin-poin yang jelas dan profesional.`;
 
             // 3. Melakukan HTTP POST request langsung ke Endpoint API Gemini 1.5 Flash (Versi Stabil)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${AQ.Ab8RN6IXXgCoga_31R2vB5SuZ7bAJWP2aEbHe5s7NwGZA2JpDQ}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent=${AQ.Ab8RN6IXXgCoga_31R2vB5SuZ7bAJWP2aEbHe5s7NwGZA2JpDQ}`;
 
             try {
                 const response = await fetch(url, {
