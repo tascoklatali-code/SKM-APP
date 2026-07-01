@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Kuesioner SKM</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 font-sans antialiased text-slate-800">
+
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        
+        <div class="bg-white rounded-2xl p-6 shadow-xs border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    📝 Formulir Kuesioner SKM
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">Silakan isi survei ini secara objektif untuk meningkatkan mutu kualitas pelayanan kami.</p>
+            </div>
+            <a href="index.html" class="bg-slate-600 hover:bg-slate-700 text-white text-xs font-semibold py-2 px-4 rounded-xl shadow-xs transition no-underline">
+                <i class="fa-solid fa-house mr-1"></i> Beranda
+            </a>
+        </div>
+
+        <form id="skmForm" class="space-y-6">
+            
+            <div class="bg-white rounded-2xl p-6 shadow-xs border border-slate-200 space-y-4">
+                <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2">
+                    I. Profil & Karakteristik Responden
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap (Boleh Inisial):</label>
+                        <input type="text" name="nama" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-hidden focus:border-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Kelamin:</label>
+                        <select name="jenis_kelamin" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-hidden focus:border-blue-500 transition">
+                            <option value="">-- Pilih --</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Usia (Tahun):</label>
+                        <input type="number" name="usia" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-hidden focus:border-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Pendidikan Terakhir:</label>
+                        <select name="pendidikan" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-hidden focus:border-blue-500 transition">
+                            <option value="">-- Pilih --</option>
+                            <option value="SD/Sederajat">SD / Sederajat</option>
+                            <option value="SMP/Sederajat">SMP / Sederajat</option>
+                            <option value="SMA/Sederajat">SMA / Sederajat</option>
+                            <option value="DI/DII/DIII">DI / DII / DIII</option>
+                            <option value="S1/DIV">S1 / Diploma IV</option>
+                            <option value="S2/S3">S2 / S3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Pekerjaan Utama:</label>
+                        <input type="text" name="pekerjaan" required placeholder="Contoh: PNS, Swasta, Wiraswasta, Mahasiswa" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-hidden focus:border-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Layanan yang Diterima:</label>
+                        <input type="text" name="jenis_layanan" required placeholder="Contoh: Permohonan Dokumen, Konsultasi" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-hidden focus:border-blue-500 transition">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-xs border border-slate-200 space-y-6">
+                <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2">
+                    II. Penilaian Mutu Pelayanan Publik
+                </h3>
+                
+                <div id="unsurContainer" class="space-y-6 divide-y divide-slate-100">
+                    </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" id="btnSubmit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3 px-8 rounded-xl shadow-xs transition cursor-pointer flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Kirim Jawaban Kuesioner
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // URL Google Apps Script Web App Anda (Ganti dengan URL Exec yang valid)
+        const WEB_APP_URL = "PASTE_URL_WEB_APP_GOOGLE_APPS_SCRIPT_ANDA_DISINI";
+
+        // Daftar 9 Unsur Pelayanan Berdasarkan Permenpan RB
+        const daftarUnsur = [
+            { id: 'U1', nama: 'Persyaratan', ket: 'Kemudahan persyaratan pelayanan administratif/teknis.' },
+            { id: 'U2', nama: 'Sistem, Mekanisme, dan Prosedur', ket: 'Kemudahan alur tata cara pelayanan yang distandarkan.' },
+            { id: 'U3', nama: 'Waktu Penyelesaian', ket: 'Kecepatan durasi waktu dari awal berkas masuk hingga selesai.' },
+            { id: 'U4', nama: 'Biaya/Tarif', ket: 'Kesesuaian biaya yang dibayarkan dengan aturan resmi (gratis/sesuai tarif).' },
+            { id: 'U5', nama: 'Produk Spesifikasi Jenis Pelayanan', ket: 'Kualitas hasil produk pelayanan, kelengkapan berkas/fasilitas.' },
+            { id: 'U6', nama: 'Kompetensi Pelaksana', ket: 'Keahlian, keterampilan, dan pengetahuan petugas dalam melayani.' },
+            { id: 'U7', nama: 'Perilaku Pelaksana', ket: 'Kesopanan, keramahan, dan ketulusan petugas saat memberikan layanan.' },
+            { id: 'U8', nama: 'Maklumat Pelayanan', ket: 'Kejelasan informasi maklumat komitmen pelayanan di area kantor.' },
+            { id: 'U9', nama: 'Penanganan Pengaduan, Saran, Masukan', ket: 'Responsivitas dan tindak lanjut petugas atas aduan/keluhan konsumen.' }
+        ];
+
+        // 1. Render Elemen Pertanyaan 9 Unsur secara Otomatis
+        const container = document.getElementById('unsurContainer');
+        daftarUnsur.forEach((unsur, index) => {
+            const div = document.createElement('div');
+            // Menambahkan padding atas untuk elemen setelah index 0 agar rapi karena efek pembatas (divide-y)
+            div.className = index === 0 ? 'space-y-2' : 'space-y-2 pt-4'; 
+            div.innerHTML = `
+                <div>
+                    <label class="block text-sm font-bold text-slate-800">[${unsur.id}] ${unsur.nama}</label>
+                    <p class="text-xs text-slate-400 font-light">${unsur.ket}</p>
+                </div>
+                <input type="hidden" name="skor_${unsur.id}" id="input_${unsur.id}" required>
+                
+                <div class="flex items-center gap-2 pt-1">
+                    <div class="flex gap-1 text-xl">
+                        <i class="fa-star fa-regular text-slate-300 cursor-pointer transition hover:scale-110" data-unsur="${unsur.id}" data-value="1"></i>
+                        <i class="fa-star fa-regular text-slate-300 cursor-pointer transition hover:scale-110" data-unsur="${unsur.id}" data-value="2"></i>
+                        <i class="fa-star fa-regular text-slate-300 cursor-pointer transition hover:scale-110" data-unsur="${unsur.id}" data-value="3"></i>
+                        <i class="fa-star fa-regular text-slate-300 cursor-pointer transition hover:scale-110" data-unsur="${unsur.id}" data-value="4"></i>
+                    </div>
+                    <span id="text_${unsur.id}" class="text-xs font-semibold text-slate-400 ml-2">Belum dinilai</span>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+
+        // Keterangan teks bobot nilai skor 1 - 4
+        const labelKeterangan = {
+            1: "Sangat Tidak Baik (Skor 1)",
+            2: "Tidak Baik (Skor 2)",
+            3: "Baik (Skor 3)",
+            4: "Sangat Baik (Skor 4)"
+        };
+
+        // 2. Logika Efek Klik & Hover Bintang Kuesioner
+        document.querySelectorAll('.fa-star').forEach(star => {
+            star.addEventListener('click', function() {
+                const unsurId = this.getAttribute('data-unsur');
+                const targetValue = parseInt(this.getAttribute('data-value'));
+                
+                // Simpan nilai ke input hidden
+                document.getElementById(`input_${unsurId}`).value = targetValue;
+                
+                // Update teks penjelasan skor di sebelah kanan bintang
+                const txtLabel = document.getElementById(`text_${unsurId}`);
+                txtLabel.innerText = labelKeterangan[targetValue];
+                txtLabel.className = targetValue >= 3 ? "text-xs font-semibold text-emerald-600 ml-2" : "text-xs font-semibold text-red-500 ml-2";
+
+                // Ubah status kelas visual bintang (solid/regular)
+                const semuaBintangUnsur = document.querySelectorAll(`[data-unsur="${unsurId}"]`);
+                semuaBintangUnsur.forEach(s => {
+                    const val = parseInt(s.getAttribute('data-value'));
+                    if (val <= targetValue) {
+                        s.classList.remove('fa-regular', 'text-slate-300');
+                        s.classList.add('fa-solid', 'text-amber-400');
+                    } else {
+                        s.classList.remove('fa-solid', 'text-amber-400');
+                        s.classList.add('fa-regular', 'text-slate-300');
+                    }
+                });
+            });
+        });
+
+        // 3. Logika Submit Data Menggunakan Fetch API ke Google Web App
+        document.getElementById('skmForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Memastikan seluruh 9 unsur sudah diberi penilaian bintang
+            for (let unsur of daftarUnsur) {
+                if (!document.getElementById(`input_${unsur.id}`).value) {
+                    alert(`Mohon maaf, Anda belum memberikan penilaian bintang pada unsur [${unsur.id}] ${unsur.nama}!`);
+                    return;
+                }
+            }
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Menyimpan Data...`;
+
+            // Membuat FormData bawaan browser dari input formulir
+            const formData = new FormData(this);
+            
+            // Konversi FormData ke objek URL Query Params agar terbaca oleh e.parameter di Apps Script
+            const queryParams = new URLSearchParams();
+            for (const pair of formData.entries()) {
+                queryParams.append(pair[0], pair[1]);
+            }
+
+            try {
+                // Eksekusi POST request
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: queryParams.toString()
+                });
+
+                const resData = await response.json();
+
+                if (resData.status === "success") {
+                    alert("Terima kasih banyak! Kontribusi data kuesioner SKM Anda telah berhasil disimpan.");
+                    this.reset();
+                    // Reset visual teks bintang kembali ke kondisi awal
+                    document.querySelectorAll('[id^="text_"]').forEach(t => {
+                        t.innerText = "Belum dinilai";
+                        t.className = "text-xs font-semibold text-slate-400 ml-2";
+                    });
+                    document.querySelectorAll('.fa-star').forEach(s => {
+                        s.classList.remove('fa-solid', 'text-amber-400');
+                        s.classList.add('fa-regular', 'text-slate-300');
+                    });
+                } else {
+                    throw new Error(resData.message || "Gagal menyimpan ke pangkalan cloud.");
+                }
+
+            } catch (error) {
+                console.error("Submit Error:", error);
+                alert("Waduh, terjadi kendala saat mengirim data: " + error.message);
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Kirim Jawaban Kuesioner`;
+            }
+        });
+    </script>
+</body>
+</html>
