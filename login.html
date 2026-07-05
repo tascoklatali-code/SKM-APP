@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Sistem E-SKM</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 font-sans min-h-screen flex items-center justify-center px-4">
+
+    <div class="max-w-md w-full bg-white rounded-2xl p-8 shadow-md border border-slate-200 space-y-6">
+        <div class="text-center">
+            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold mx-auto mb-3">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900">Akses Terbatas</h2>
+            <p class="text-xs text-slate-400 mt-1">Silakan masukkan akun internal Anda untuk melanjutkan</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Username:</label>
+                <input type="text" id="username" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-hidden focus:border-blue-500 transition">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Password:</label>
+                <input type="password" id="password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-hidden focus:border-blue-500 transition">
+            </div>
+            <button type="submit" id="btnLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 rounded-xl shadow-xs transition cursor-pointer flex items-center justify-center gap-2">
+                Masuk Sistem
+            </button>
+        </form>
+        
+        <div class="text-center pt-2">
+            <a href="index.html" class="text-xs text-slate-400 hover:text-blue-600 transition no-underline">&larr; Kembali ke Beranda</a>
+        </div>
+    </div>
+
+    <script>
+        // TEMPELKAN URL WEB APP YANG BARU SAJA ANDA SALIN DI SINI
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzCYdTMUHVALvQy72ZawnWQsF28LNhZa4jLWJoJ7RQ1gHlJkC0btW-Ja9tYRJDc2syuTw/exec";
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnLogin');
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            btn.disabled = true;
+            btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Memeriksa...`;
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "cek_login",
+                        username: user,
+                        password: pass
+                    })
+                });
+                
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    // Simpan status login di session browser
+                    sessionStorage.setItem("isLoggedIn", "true");
+                    
+                    // Ambil rute halaman tujuan awal sebelum dialihkan ke login, default ke dashboard
+                    const targetPage = sessionStorage.getItem("targetPage") || "dashboard.html";
+                    sessionStorage.removeItem("targetPage"); 
+                    
+                    window.location.href = targetPage;
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert("Terjadi kesalahan koneksi sistem login.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Masuk Sistem";
+            }
+        });
+    </script>
+</body>
+</html>
