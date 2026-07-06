@@ -55,19 +55,19 @@
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Jenis Layanan</label>
                 <select id="filterLayanan" onchange="filterData()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-blue-500">
-                    <option value="Semua">-- Semua Layanan --</option>
+                    <option value="ALL">-- Semua Layanan --</option>
                 </select>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Lokus SKM / Unit</label>
                 <select id="filterLokus" onchange="filterData()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-blue-500">
-                    <option value="Semua">-- Semua Lokus --</option>
+                    <option value="ALL">-- Semua Lokus --</option>
                 </select>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Tahun</label>
                 <select id="filterTahun" onchange="filterData()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-blue-500">
-                    <option value="Semua">-- Semua Tahun --</option>
+                    <option value="ALL">-- Semua Tahun --</option>
                 </select>
             </div>
         </div>
@@ -171,7 +171,7 @@
                     }
                 })
                 .catch(error => console.error("Gagal memuat data publikasi:", error));
-        }
+        }); // <-- Tadi kurang kurung tutup penutup di sini yang memicu error script
 
         function initFilters(data) {
             const layananSelect = document.getElementById("filterLayanan");
@@ -179,9 +179,9 @@
             const tahunSelect = document.getElementById("filterTahun");
 
             // Kosongkan dan buat opsi default awal agar tidak duplikat
-            layananSelect.innerHTML = '<option value="Semua">-- Semua Layanan --</option>';
-            lokusSelect.innerHTML = '<option value="Semua">-- Semua Lokus --</option>';
-            tahunSelect.innerHTML = '<option value="Semua">-- Semua Tahun --</option>';
+            layananSelect.innerHTML = '<option value="ALL">-- Semua Layanan --</option>';
+            lokusSelect.innerHTML = '<option value="ALL">-- Semua Lokus --</option>';
+            tahunSelect.innerHTML = '<option value="ALL">-- Semua Tahun --</option>';
 
             // Suntik data Unit/Lokus unik dari database Apps Script Anda
             if (data.daftar_unit) {
@@ -218,9 +218,9 @@
 
             // Bangun URL Query parameters untuk dikirim ke fungsi doGet(e) di Apps Script
             let queryUrl = WEB_APP_URL + "?";
-            if (lokus !== "Semua") queryUrl += "unit=" + encodeURIComponent(lokus) + "&";
-            if (layanan !== "Semua") queryUrl += "layanan=" + encodeURIComponent(layanan) + "&";
-            if (tahun !== "Semua") queryUrl += "tahun=" + encodeURIComponent(tahun);
+            if (lokus !== "ALL") queryUrl += "unit=" + encodeURIComponent(lokus) + "&";
+            if (layanan !== "ALL") queryUrl += "layanan=" + encodeURIComponent(layanan) + "&";
+            if (tahun !== "ALL") queryUrl += "tahun=" + encodeURIComponent(tahun);
 
             fetch(queryUrl)
                 .then(response => response.json())
@@ -262,9 +262,9 @@
             const sLayanan = document.getElementById("filterLayanan").value;
             const sTahun = document.getElementById("filterTahun").value;
 
-            document.getElementById("pubLokus").innerText = sLokus === "Semua" ? "Semua Unit Pelayanan" : sLokus.toUpperCase();
-            document.getElementById("pubLayanan").innerText = sLayanan === "Semua" ? "Semua Jenis Layanan" : sLayanan;
-            document.getElementById("pubTahun").innerText = sTahun === "Semua" ? new Date().getFullYear() : sTahun;
+            document.getElementById("pubLokus").innerText = sLokus === "ALL" ? "Semua Unit Pelayanan" : sLokus.toUpperCase();
+            document.getElementById("pubLayanan").innerText = sLayanan === "ALL" ? "Semua Jenis Layanan" : sLayanan;
+            document.getElementById("pubTahun").innerText = sTahun === "ALL" ? new Date().getFullYear() : sTahun;
 
             // Set Jumlah Responden Riil Terfilter
             const total = data.total_responden || 0;
@@ -281,7 +281,7 @@
             document.getElementById("eduS1").innerText = 0;
             document.getElementById("eduS2").innerText = 0;
 
-            document.getElementById("pubPeriodeTanggal").innerText = "01 Januari s/d 30 Juni " + (sTahun === "Semua" ? new Date().getFullYear() : sTahun);
+            document.getElementById("pubPeriodeTanggal").innerText = "01 Januari s/d 30 Juni " + (sTahun === "ALL" ? new Date().getFullYear() : sTahun);
         }
     </script>
 </body>
