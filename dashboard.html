@@ -97,25 +97,43 @@
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm">
-                <h2 class="text-lg font-bold text-slate-800 mb-4">Grafik Nilai Rata-Rata (NRR) Per Unsur Pelayanan</h2>
-                <div class="relative w-full h-[350px]">
-                        <canvas id="ikmChart"></canvas>
-                    </div>
+                <!-- Flex container untuk menyejajarkan Judul (Kiri) dan Filter Dropdown (Kanan Atas) -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                    <h2 class="text-lg font-bold text-slate-800">Grafik Nilai Rata-Rata (NRR) Per Unsur Pelayanan</h2>
                     
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Keterangan Unsur Pelayanan:</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-slate-600">
-                            <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U1:</span> Persyaratan</div>
-                            <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U2:</span> Sistem Mekanisme Prosedur</div>
-                            <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U3:</span> Waktu Penyelesaian</div>
-                            <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U4:</span> Biaya / Tarif</div>
-                            <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U5:</span> Produk Spesifikasi Jenis Pelayanan</div>
-                            <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U6:</span> Kompetensi Pelaksana</div>
-                            <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U7:</span> Perilaku Pelaksana</div>
-                            <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U8:</span> Maklumat Pelayanan</div>
-                            <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U9:</span> Penanganan Pengaduan Saran dan Masukan</div>
+                    <!-- Kotak Filter Dropdown -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="w-40 sm:w-48">
+                            <select id="filterUnit" onchange="aplikasikanFilter()" class="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-xs text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <option value="ALL">-- Semua Unit --</option>
+                            </select>
+                        </div>
+                        <div class="w-40 sm:w-48">
+                            <select id="filterLayanan" onchange="aplikasikanFilter()" class="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-xs text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <option value="ALL">-- Semua Layanan --</option>
+                            </select>
                         </div>
                     </div>
+                </div>
+
+                <div class="relative w-full h-[350px]">
+                    <canvas id="ikmChart"></canvas>
+                </div>
+                    
+                <div class="mt-6 pt-4 border-t border-gray-100">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Keterangan Unsur Pelayanan:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-slate-600">
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U1:</span> Persyaratan</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U2:</span> Sistem Mekanisme Prosedur</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U3:</span> Waktu Penyelesaian</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U4:</span> Biaya / Tarif</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U5:</span> Produk Spesifikasi Jenis Pelayanan</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U6:</span> Kompetensi Pelaksana</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U7:</span> Perilaku Pelaksana</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U8:</span> Maklumat Pelayanan</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U9:</span> Penanganan Pengaduan Saran dan Masukan</div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -124,6 +142,10 @@
     <script>
         // PENTING: Ganti URL di bawah ini dengan Web App URL Google Apps Script Anda yang aktif!
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4LEEaovijeNDGFJnDq8QrlBsKBoS2Icd_9kuaGv4roBfWnXj8ICWgeArEOmAtnEQnRg/exec";
+        
+        // Variabel Global untuk manajemen data dan instance grafik
+        let grafikChartInstance = null;
+        let dataGlobalMentah = null;
 
         document.addEventListener("DOMContentLoaded", function() {
             // Mengambil data dari Google Apps Script melalui doGet
@@ -131,92 +153,15 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === "success") {
-                        // 1. Update ringkasan nilai teks di card dashboard
-                        document.getElementById("totalResponden").innerText = data.total_responden;
-                        document.getElementById("nilaiIKM").innerText = data.nilai_ikm.toFixed(2);
-                        document.getElementById("mutuPelayanan").innerText = data.mutu_pelayanan;
+                        // Amankan object data mentah ke variabel global
+                        dataGlobalMentah = data;
 
-                        // Tentukan warna garis tepi dan warna ikon mutu pelayanan secara dinamis
-                        const cardMutu = document.getElementById("cardMutu");
-                        const iconMutu = document.getElementById("iconMutu");
-                        const mutuEl = document.getElementById("mutuPelayanan");
+                        // Buat daftar dropdown berdasarkan data unit dan layanan yang dikirim database
+                        inisialisasiOpsiDropdown(data);
 
-                        // Menggunakan startsWith agar hanya mendeteksi huruf depan (A, B, C, atau D)
-                        const mutuTeks = data.mutu_pelayanan.trim().toUpperCase();
-
-                        if (mutuTeks.startsWith("A")) {
-                            cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-emerald-500";
-                            iconMutu.className = "pr-4 flex items-center justify-center text-emerald-600";
-                            mutuEl.className = "text-2xl font-extrabold text-emerald-600 mt-0.5";
-                        } else if (mutuTeks.startsWith("B")) {
-                            cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-blue-500";
-                            iconMutu.className = "pr-4 flex items-center justify-center text-blue-500";
-                            mutuEl.className = "text-2xl font-extrabold text-blue-500 mt-0.5";
-                        } else if (mutuTeks.startsWith("C")) {
-                            cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-amber-500";
-                            iconMutu.className = "pr-4 flex items-center justify-center text-amber-500";
-                            mutuEl.className = "text-2xl font-extrabold text-amber-500 mt-0.5";
-                        } else if (mutuTeks.startsWith("D")) {
-                            cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-red-500";
-                            iconMutu.className = "pr-4 flex items-center justify-center text-red-500";
-                            mutuEl.className = "text-2xl font-extrabold text-red-500 mt-0.5";
-                        }
-
-                        // 2. Buat Grafik Batang Chart.js
-                        const ctx = document.getElementById('ikmChart').getContext('2d');
-                        new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8', 'U9'],
-                                datasets: [{
-                                    label: 'Nilai Rata-Rata Unsur',
-                                    data: data.nrr_unsur,
-                                    backgroundColor: function(context) {
-                                const chart = context.chart;
-                                const { data: chartData } = chart.data.datasets[0];
-                                if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 0.2)';
-                                
-                                const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
-                                indexedData.sort((a, b) => a.val - b.val);
-                                
-                                const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
-                                return lowestIndices.includes(context.dataIndex) 
-                                    ? 'rgba(255, 80, 80, 0.2)' 
-                                    : 'rgba(37, 99, 235, 0.2)';
-                            },
-                            borderColor: function(context) {
-                                const chart = context.chart;
-                                const { data: chartData } = chart.data.datasets[0];
-                                if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 1)';
-                                
-                                const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
-                                indexedData.sort((a, b) => a.val - b.val);
-                                
-                                const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
-                                return lowestIndices.includes(context.dataIndex) 
-                                    ? '#ff5050' 
-                                    : 'rgba(37, 99, 235, 1)';
-                            },
-                            borderWidth: 2,
-                            borderRadius: 6,
-                            barThickness: 30
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        max: 4, // Skala nilai kuesioner maksimal 4
-                                        ticks: { stepSize: 1 }
-                                    }
-                                },
-                                plugins: {
-                                    legend: { display: false }
-                                }
-                            }
-                        });
+                        // Render element tampilan dashboard awal
+                        perbaruiTampilanDashboard(data.total_responden, data.nilai_ikm, data.mutu_pelayanan);
+                        buatGrafikBatang(data.nrr_unsur);
 
                         // Tukar tampilan dari loading ke konten dashboard
                         document.getElementById("loadingStatus").classList.add("hidden");
@@ -230,7 +175,151 @@
                     document.getElementById("loadingStatus").innerText = "Terjadi kesalahan koneksi saat mengambil data.";
                 });
         });
+
+        // Fungsi pembantu untuk merubah isi komponen text-box indikator utama
+        function perbaruiTampilanDashboard(totalResponden, nilaiIkm, mutuPelayanan) {
+            document.getElementById("totalResponden").innerText = totalResponden;
+            document.getElementById("nilaiIKM").innerText = nilaiIkm.toFixed(2);
+            document.getElementById("mutuPelayanan").innerText = mutuPelayanan;
+
+            const cardMutu = document.getElementById("cardMutu");
+            const iconMutu = document.getElementById("iconMutu");
+            const mutuEl = document.getElementById("mutuPelayanan");
+            const mutuTeks = mutuPelayanan.trim().toUpperCase();
+
+            if (mutuTeks.startsWith("A")) {
+                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-emerald-500";
+                iconMutu.className = "pr-4 flex items-center justify-center text-emerald-600";
+                mutuEl.className = "text-2xl font-extrabold text-emerald-600 mt-0.5";
+            } else if (mutuTeks.startsWith("B")) {
+                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-blue-500";
+                iconMutu.className = "pr-4 flex items-center justify-center text-blue-500";
+                mutuEl.className = "text-2xl font-extrabold text-blue-500 mt-0.5";
+            } else if (mutuTeks.startsWith("C")) {
+                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-amber-500";
+                iconMutu.className = "pr-4 flex items-center justify-center text-amber-500";
+                mutuEl.className = "text-2xl font-extrabold text-amber-500 mt-0.5";
+            } else if (mutuTeks.startsWith("D")) {
+                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-red-500";
+                iconMutu.className = "pr-4 flex items-center justify-center text-red-500";
+                mutuEl.className = "text-2xl font-extrabold text-red-500 mt-0.5";
+            }
+        }
+
+        // Fungsi pembantu untuk pembuatan grafik awal
+        function buatGrafikBatang(nrrUnsur) {
+            const ctx = document.getElementById('ikmChart').getContext('2d');
+            grafikChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8', 'U9'],
+                    datasets: [{
+                        label: 'Nilai Rata-Rata Unsur',
+                        data: nrrUnsur,
+                        backgroundColor: function(context) {
+                            const chart = context.chart;
+                            const { data: chartData } = chart.data.datasets[0];
+                            if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 0.2)';
+                            
+                            const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
+                            indexedData.sort((a, b) => a.val - b.val);
+                            
+                            const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
+                            return lowestIndices.includes(context.dataIndex) 
+                                ? 'rgba(255, 80, 80, 0.2)' 
+                                : 'rgba(37, 99, 235, 0.2)';
+                        },
+                        borderColor: function(context) {
+                            const chart = context.chart;
+                            const { data: chartData } = chart.data.datasets[0];
+                            if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 1)';
+                            
+                            const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
+                            indexedData.sort((a, b) => a.val - b.val);
+                            
+                            const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
+                            return lowestIndices.includes(context.dataIndex) 
+                                ? '#ff5050' 
+                                : 'rgba(37, 99, 235, 1)';
+                        },
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        barThickness: 30
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 4,
+                            ticks: { stepSize: 1 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Mengisi opsi dinamis pada filter dropdown dari data unik database
+        function inisialisasiOpsiDropdown(data) {
+            const selectUnit = document.getElementById('filterUnit');
+            const selectLayanan = document.getElementById('filterLayanan');
+
+            // Cek ketersediaan daftar pilihan unik dari payload API/Sheets Anda
+            if (data.daftar_unit) {
+                data.daftar_unit.forEach(unit => {
+                    const opt = document.createElement('option');
+                    opt.value = unit; opt.textContent = unit;
+                    selectUnit.appendChild(opt);
+                });
+            }
+            if (data.daftar_layanan) {
+                data.daftar_layanan.forEach(layanan => {
+                    const opt = document.createElement('option');
+                    opt.value = layanan; opt.textContent = layanan;
+                    selectLayanan.appendChild(opt);
+                });
+            }
+        }
+
+        // Aksi Filter Real-time Berdasarkan Perubahan Dropdown
+        window.aplikasikanFilter = function() {
+            const unitTerpilih = document.getElementById('filterUnit').value;
+            const layananTerpilih = document.getElementById('filterLayanan').value;
+
+            // Kirim query penapis ke backend Web App Google Apps Script Anda
+            // Struktur pemanggilan: WEB_APP_URL?unit=...&layanan=...
+            let queryUrl = WEB_APP_URL + "?";
+            if (unitTerpilih !== "ALL") queryUrl += "unit=" + encodeURIComponent(unitTerpilih) + "&";
+            if (layananTerpilih !== "ALL") queryUrl += "layanan=" + encodeURIComponent(layananTerpilih);
+
+            // Munculkan tanda memuat data tipis saat memproses penyaringan baru
+            document.getElementById("totalResponden").innerText = "...";
+
+            fetch(queryUrl)
+                .then(res => res.json())
+                .then(dataHasilFilter => {
+                    if(dataHasilFilter.status === "success") {
+                        // Ganti angka resume indikator dashboard
+                        perbaruiTampilanDashboard(
+                            dataHasilFilter.total_responden, 
+                            dataHasilFilter.nilai_ikm, 
+                            dataHasilFilter.mutu_pelayanan
+                        );
+
+                        // Suntikkan data array baru ke chart dan suruh Chart.js mendesain ulang bentuk batangnya
+                        if(grafikChartInstance) {
+                            grafikChartInstance.data.datasets[0].data = dataHasilFilter.nrr_unsur;
+                            grafikChartInstance.update();
+                        }
+                    }
+                })
+                .catch(err => console.error("Gagal menerapkan filter:", err));
+        }
     </script>
 </body>
 </html>
-
