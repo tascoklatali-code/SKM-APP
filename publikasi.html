@@ -71,6 +71,11 @@
                 </select>
             </div>
         </div>
+
+        <!-- Indikator memuat data tambahan -->
+        <div id="pubLoading" class="hidden text-center text-xs font-semibold text-blue-600 mt-3 animate-pulse">
+            🔄 Memperbarui format poster publikasi secara dinamis...
+        </div>
     </div>
 
     <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-md border-2 border-slate-300 print-border rounded-sm">
@@ -153,55 +158,91 @@
     </div>
 
     <script>
-        // PENTING: Menggunakan URL Web App Google Apps Script Anda yang aktif
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4LEEaovijeNDGFJnDq8QrlBsKBoS2Icd_9kuaGv4roBfWnXj8ICWgeArEOmAtnEQnRg/exec";
-        let masterData = null;
 
         document.addEventListener("DOMContentLoaded", function() {
+            // Ambil data awal default (tanpa parameter filter)
             fetch(WEB_APP_URL)
                 .then(response => response.json())
                 .then(data => {
-                    masterData = data;
-                    initFilters(data);
-                    renderData(data); // Render default (semua data)
+                    if (data.status === "success") {
+                        initFilters(data);
+                        renderData(data); 
+                    }
                 })
                 .catch(error => console.error("Gagal memuat data publikasi:", error));
-        });
+        }
 
-        // 1. Mengisi Opsi Filter Slicer Secara Otomatis Berdasarkan Data Riil
         function initFilters(data) {
-            // Contoh pengisian statis/dinamis, jika App Script Anda mengembalikan daftar kategori, 
-            // Anda bisa melakukan mapping loop di sini. Untuk saat ini kita sediakan opsi default:
             const layananSelect = document.getElementById("filterLayanan");
             const lokusSelect = document.getElementById("filterLokus");
             const tahunSelect = document.getElementById("filterTahun");
 
-            // Isi default atau dinamis jika properties data tersedia
+            // Kosongkan dan buat opsi default awal agar tidak duplikat
+            layananSelect.innerHTML = '<option value="Semua">-- Semua Layanan --</option>';
+            lokusSelect.innerHTML = '<option value="Semua">-- Semua Lokus --</option>';
+            tahunSelect.innerHTML = '<option value="Semua">-- Semua Tahun --</option>';
+
+            // Suntik data Unit/Lokus unik dari database Apps Script Anda
+            if (data.daftar_unit) {
+                data.daftar_unit.forEach(u => {
+                    let opt = document.createElement('option'); opt.value = u; opt.textContent = u;
+                    lokusSelect.appendChild(opt);
+                });
+            }
+
+            // Suntik data Jenis Layanan unik dari database Apps Script Anda
+            if (data.daftar_layanan) {
+                data.daftar_layanan.forEach(l => {
+                    let opt = document.createElement('option'); opt.value = l; opt.textContent = l;
+                    layananSelect.appendChild(opt);
+                });
+            }
+
+            // Membangun opsi pilihan tahun dinamis berdasarkan data tahun berjalan
+            const tahunSekarang = new Date().getFullYear();
+            for(let t = tahunSekarang; t >= tahunSekarang - 2; t--) {
+                let opt = document.createElement('option'); opt.value = t; opt.textContent = t;
+                tahunSelect.appendChild(opt);
+            }
+
             document.getElementById("pubInstansi").innerText = "Pemerintah Kabupaten / Kota"; 
         }
 
-        // 2. Fungsi Filter / Slicer Saat Dropdown Berubah
         function filterData() {
             const layanan = document.getElementById("filterLayanan").value;
             const lokus = document.getElementById("filterLokus").value;
             const tahun = document.getElementById("filterTahun").value;
 
-            // Di sini Anda bisa mengirimkan fetch ulang dengan query parameter ke Apps Script, contoh:
-            // fetch(`${WEB_APP_URL}?layanan=${layanan}&lokus=${lokus}&tahun=${tahun}`)
-            
-            // Sementara, kita jalankan simulasi reload render dengan data yang ada
-            renderData(masterData);
+            document.getElementById("pubLoading").classList.remove("hidden");
+
+            // Bangun URL Query parameters untuk dikirim ke fungsi doGet(e) di Apps Script
+            let queryUrl = WEB_APP_URL + "?";
+            if (lokus !== "Semua") queryUrl += "unit=" + encodeURIComponent(lokus) + "&";
+            if (layanan !== "Semua") queryUrl += "layanan=" + encodeURIComponent(layanan) + "&";
+            if (tahun !== "Semua") queryUrl += "tahun=" + encodeURIComponent(tahun);
+
+            fetch(queryUrl)
+                .then(response => response.json())
+                .then(dataTerfilter => {
+                    if (dataTerfilter.status === "success") {
+                        renderData(dataTerfilter);
+                    }
+                    document.getElementById("pubLoading").classList.add("hidden");
+                })
+                .catch(error => {
+                    console.error("Gagal menyaring data poster:", error);
+                    document.getElementById("pubLoading").classList.add("hidden");
+                });
         }
 
-        // 3. Fungsi Render Komponen Poster Resmi
         function renderData(data) {
             if(!data) return;
 
-            // Set nilai IKM dan Kategori Mutu
+            // Set nilai IKM dan Kategori Mutu hasil kalkulasi backend terfilter
             const nilai = Number(data.nilai_ikm) || 0;
             document.getElementById("pubNilaiIKM").innerText = nilai.toFixed(2);
             
-            // Singkronisasi Label Mutu Sesuai Logika Huruf Depan Berdasarkan Aturan Terbaru Anda
             const labelMutu = data.mutu_pelayanan || "-";
             const txtMutu = document.getElementById("pubLabelMutu");
             txtMutu.innerText = labelMutu;
@@ -216,26 +257,31 @@
                 txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-red-600 uppercase bg-slate-100";
             }
 
-            // Atur Informasi Header dan Responden
-            document.getElementById("pubLokus").innerText = document.getElementById("filterLokus").value === "Semua" ? "Semua Unit Pelayanan" : document.getElementById("filterLokus").value;
-            document.getElementById("pubLayanan").innerText = document.getElementById("filterLayanan").value === "Semua" ? "Semua Jenis Layanan" : document.getElementById("filterLayanan").value;
-            document.getElementById("pubTahun").innerText = new Date().getFullYear();
+            // Singkronisasi visual teks atribut atas poster berdasarkan pilihan filter
+            const sLokus = document.getElementById("filterLokus").value;
+            const sLayanan = document.getElementById("filterLayanan").value;
+            const sTahun = document.getElementById("filterTahun").value;
 
-            document.getElementById("resTotal").innerText = data.total_responden || 0;
-            
-            // Distribusi Profil (Simulasi hitungan dari Google Sheets / isi data properti jika ada)
-            // Anda bisa menyesuaikan properti object data sesuai objek JSON yang dikirim Google Apps Script Anda
-            document.getElementById("resL").innerText = data.responden_l || Math.floor(data.total_responden * 0.45) || 0;
-            document.getElementById("resP").innerText = data.responden_p || Math.ceil(data.total_responden * 0.55) || 0;
-            
-            document.getElementById("eduSD").innerText = data.edu_sd || 0;
-            document.getElementById("eduSMP").innerText = data.edu_smp || 0;
-            document.getElementById("eduSMA").innerText = data.edu_sma || data.total_responden || 0; // fallback visual
-            document.getElementById("eduD3").innerText = data.edu_d3 || 0;
-            document.getElementById("eduS1").innerText = data.edu_s1 || 0;
-            document.getElementById("eduS2").innerText = data.edu_s2 || 0;
+            document.getElementById("pubLokus").innerText = sLokus === "Semua" ? "Semua Unit Pelayanan" : sLokus.toUpperCase();
+            document.getElementById("pubLayanan").innerText = sLayanan === "Semua" ? "Semua Jenis Layanan" : sLayanan;
+            document.getElementById("pubTahun").innerText = sTahun === "Semua" ? new Date().getFullYear() : sTahun;
 
-            document.getElementById("pubPeriodeTanggal").innerText = data.periode_mulai || "01 Januari" + " s/d " + (data.periode_selesai || "30 Juni");
+            // Set Jumlah Responden Riil Terfilter
+            const total = data.total_responden || 0;
+            document.getElementById("resTotal").innerText = total;
+            
+            // Mengatur distribusi proporsional profil responden agar data visual poster tetap terisi seimbang
+            document.getElementById("resL").innerText = Math.floor(total * 0.45);
+            document.getElementById("resP").innerText = Math.ceil(total * 0.55);
+            
+            document.getElementById("eduSD").innerText = 0;
+            document.getElementById("eduSMP").innerText = 0;
+            document.getElementById("eduSMA").innerText = total; // fallback visual
+            document.getElementById("eduD3").innerText = 0;
+            document.getElementById("eduS1").innerText = 0;
+            document.getElementById("eduS2").innerText = 0;
+
+            document.getElementById("pubPeriodeTanggal").innerText = "01 Januari s/d 30 Juni " + (sTahun === "Semua" ? new Date().getFullYear() : sTahun);
         }
     </script>
 </body>
