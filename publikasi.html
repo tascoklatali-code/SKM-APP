@@ -81,12 +81,11 @@
     <!-- Bagian Poster Utama -->
     <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-md border-2 border-slate-300 print-border rounded-sm">
         
-        <!-- STRUKTUR BARU: Menyatukan font, ketebalan, ukuran, dan memaksa Kapital penuh pada judul poster -->
         <div class="text-center uppercase font-bold text-lg md:text-xl space-y-3 mb-8 pt-4 tracking-wide text-slate-950">
             <div>Indeks Kepuasan Masyarakat (IKM)</div>
-            <div id="pubLokus">...</div>
-            <div id="pubInstansi"></div>
-            <div id="pubPeriodeGabungan">...</div>
+            <div id="pubLokus">SEMUA UNIT PELAYANAN</div>
+            <div id="pubInstansi">KEMENTERIAN DALAM NEGERI</div>
+            <div id="pubPeriodeGabungan">PERIODE PENILAIAN : TAHUN 2026</div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 border border-black">
@@ -128,13 +127,16 @@
                         </div>
                         <div class="flex flex-col border-t border-slate-100 pt-1.5">
                             <span class="uppercase font-medium mb-1">Pendidikan</span>
+                            <!-- STRUKTUR DISESUAIKAN DENGAN PILIHAN OPSI KUESIONER ANDA -->
                             <div class="grid grid-cols-2 gap-x-4 gap-y-1 pl-4 text-xs md:text-sm">
                                 <div class="flex justify-between"><span>SD</span><span>= <span id="eduSD" class="font-bold">0</span> Orang</span></div>
-                                <div class="flex justify-between"><span>DIII</span><span>= <span id="eduD3" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span>D1/D2/D3</span><span>= <span id="eduDiploma" class="font-bold">0</span> Orang</span></div>
                                 <div class="flex justify-between"><span>SMP</span><span>= <span id="eduSMP" class="font-bold">0</span> Orang</span></div>
-                                <div class="flex justify-between"><span>S1</span><span>= <span id="eduS1" class="font-bold">0</span> Orang</span></div>
-                                <div class="flex justify-between"><span>SMA</span><span>= <span id="eduSMA" class="font-bold">0</span> Orang</span></div>
-                                <div class="flex justify-between"><span>S2/S3</span><span>= <span id="eduS2" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span>S1/D4</span><span>= <span id="eduS1" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span>SMA/SMK</span><span>= <span id="eduSMA" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span>S2</span><span>= <span id="eduS2" class="font-bold">0</span> Orang</span></div>
+                                <div class="flex justify-between"><span></span><span></span></div>
+                                <div class="flex justify-between"><span>S3</span><span>= <span id="eduS3" class="font-bold">0</span> Orang</span></div>
                             </div>
                         </div>
                     </div>
@@ -253,41 +255,51 @@
             const sLayanan = document.getElementById("filterLayanan").value;
             const sTahun = document.getElementById("filterTahun").value;
 
-            // BARIS PERTAMA: Nama Unit / Lokus Dinilai (Dipaksa Kapital)
+            // BARIS PERTAMA: Nama Unit / Lokus Dinilai
             document.getElementById("pubLokus").innerText = sLokus === "ALL" ? "SEMUA UNIT PELAYANAN" : sLokus.toUpperCase();
             
-            // BARIS KEDUA: Mengambil properti 'lembaga_dinilai' (Dipaksa Kapital)
+            // BARIS KEDUA: Mengambil properti 'lembaga_dinilai'
             if (sLokus === "ALL") {
                 document.getElementById("pubInstansi").innerText = "KEMENTERIAN DALAM NEGERI"; 
             } else {
                 document.getElementById("pubInstansi").innerText = data.lembaga_dinilai ? data.lembaga_dinilai.toUpperCase() : "KEMENTERIAN DALAM NEGERI";
             }
             
-            // BARIS KETIGA: Format dinamis penggabungan Periode + "Tahun" + Angka Tahun (Dipaksa Kapital)
+            // BARIS KETIGA: Format dinamis penggabungan Periode + "Tahun" + Angka Tahun
             const angkaTahun = sTahun === "ALL" ? new Date().getFullYear() : sTahun;
             if (sLokus === "ALL") {
                 document.getElementById("pubPeriodeGabungan").innerText = `PERIODE PENILAIAN : TAHUN ${angkaTahun}`;
             } else {
-                const namaPeriode = data.periode_penilaian || "SURVEI I";
+                const namaPeriode = data.periode_penilaian || "TRIVULAN I";
                 document.getElementById("pubPeriodeGabungan").innerText = `PERIODE PENILAIAN : ${namaPeriode.toUpperCase()} TAHUN ${angkaTahun}`;
             }
 
             // Nama Layanan di sisi kanan
             document.getElementById("pubLayanan").innerText = sLayanan === "ALL" ? "Semua Jenis Layanan" : sLayanan;
 
-            // 4. Sinkronisasi Data Responden
+            // 4. Sinkronisasi Data Jenis Kelamin Responden
             const total = data.total_responden || 0;
             document.getElementById("resTotal").innerText = total;
             
-            document.getElementById("resL").innerText = Math.floor(total * 0.45);
-            document.getElementById("resP").innerText = Math.ceil(total * 0.55);
+            // Mengambil pemisahan gender dari payload data jika tersedia, jika tidak beralih ke estimasi proporsional
+            if (data.distribusi_gender) {
+                document.getElementById("resL").innerText = data.distribusi_gender.L || 0;
+                document.getElementById("resP").innerText = data.distribusi_gender.P || 0;
+            } else {
+                document.getElementById("resL").innerText = Math.floor(total * 0.45);
+                document.getElementById("resP").innerText = Math.ceil(total * 0.55);
+            }
             
-            document.getElementById("eduSD").innerText = 0;
-            document.getElementById("eduSMP").innerText = 0;
-            document.getElementById("eduSMA").innerText = total;
-            document.getElementById("eduD3").innerText = 0;
-            document.getElementById("eduS1").innerText = 0;
-            document.getElementById("eduS2").innerText = 0;
+            // 5. LOGIKA BARU: Parsing Data Pendidikan secara Dinamis dari Objek Respons Google Apps Script
+            const eduData = data.distribusi_pendidikan || data.pendidikan || {};
+            
+            document.getElementById("eduSD").innerText      = eduData["SD"] || 0;
+            document.getElementById("eduSMP").innerText     = eduData["SMP"] || 0;
+            document.getElementById("eduSMA").innerText     = eduData["SMA/SMK"] || eduData["SMA"] || 0;
+            document.getElementById("eduDiploma").innerText = eduData["D1/D2/D3"] || eduData["DIII"] || 0;
+            document.getElementById("eduS1").innerText      = eduData["S1/D4"] || eduData["S1"] || 0;
+            document.getElementById("eduS2").innerText      = eduData["S2"] || 0;
+            document.getElementById("eduS3").innerText      = eduData["S3"] || 0;
 
             document.getElementById("pubPeriodeTanggal").innerText = "01 Januari s/d 30 Juni " + angkaTahun;
         }
