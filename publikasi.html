@@ -87,10 +87,10 @@
             <!-- Baris Pertama: Merujuk unit_dinilai -->
             <div id="pubLokus" class="text-xl font-extrabold text-slate-900 tracking-wide">...</div>
             
-            <!-- Baris Kedua: Dinamis merujuk ke lembaga_dinilai dari Apps Script -->
-            <div id="pubInstansi" class="text-sm font-semibold text-slate-600 tracking-wide">...</div>
+            <!-- Baris Kedua: Dinamis merujuk ke lembaga_dinilai -->
+            <div id="pubInstansi" class="text-sm font-semibold text-slate-600 tracking-wide"></div>
             
-            <!-- Baris Ketiga: Menggabungkan teks Periode Penilaian + Nama Periode + Kata Hubung "Tahun" -->
+            <!-- Baris Ketiga: Format dinamis penggabungan Periode + "Tahun" + Angka Tahun -->
             <div class="text-sm font-medium text-slate-500">
                 Periode Penilaian : <span id="pubPeriodeGabungan" class="font-bold">...</span>
             </div>
@@ -255,7 +255,7 @@
                 txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-red-600 uppercase bg-slate-100";
             }
 
-            // 3. Ambil nilai filter saat ini
+            // 3. Ambil parameter filter saat ini
             const sLokus = document.getElementById("filterLokus").value;
             const sLayanan = document.getElementById("filterLayanan").value;
             const sTahun = document.getElementById("filterTahun").value;
@@ -263,17 +263,22 @@
             // BARIS PERTAMA: Nama Unit / Lokus Dinilai
             document.getElementById("pubLokus").innerText = sLokus === "ALL" ? "SEMUA UNIT PELAYANAN" : sLokus.toUpperCase();
             
-            // BARIS KEDUA: Diambil langsung secara dinamis dari kunci 'lembaga_dinilai' pada objek json response Apps Script
-            const namaLembaga = data.lembaga_dinilai || "PEMERINTAH KABUPATEN / KOTA";
-            document.getElementById("pubInstansi").innerText = sLokus === "ALL" ? "PEMERINTAH KABUPATEN / KOTA" : namaLembaga.toUpperCase();
+            // BARIS KEDUA: Mengambil properti 'lembaga_dinilai' dari JSON hasil hitung Apps Script
+            if (sLokus === "ALL") {
+                document.getElementById("pubInstansi").innerText = ""; // Kosongkan jika belum memfilter lokus
+            } else {
+                // Menggunakan data kementerian/lembaga hasil lemparan backend Apps Script
+                document.getElementById("pubInstansi").innerText = data.lembaga_dinilai ? data.lembaga_dinilai.toUpperCase() : "";
+            }
             
-            // BARIS KETIGA: Format dinamis penggabungan Periode + "Tahun" + Angka Tahun
-            const namaPeriode = data.periode_penilaian || "Semester I"; // fallback jika null dari sheet
+            // BARIS KETIGA: Penggabungan Periode Penilaian + "Tahun" + Angka Tahun
             const angkaTahun = sTahun === "ALL" ? new Date().getFullYear() : sTahun;
-            
-            document.getElementById("pubPeriodeGabungan").innerText = sLokus === "ALL" && sTahun === "ALL" 
-                ? `${angkaTahun}` 
-                : `${namaPeriode} Tahun ${angkaTahun}`;
+            if (sLokus === "ALL") {
+                document.getElementById("pubPeriodeGabungan").innerText = angkaTahun;
+            } else {
+                const namaPeriode = data.periode_penilaian || "Semester I";
+                document.getElementById("pubPeriodeGabungan").innerText = `${namaPeriode} Tahun ${angkaTahun}`;
+            }
 
             // Nama Layanan di sisi kanan
             document.getElementById("pubLayanan").innerText = sLayanan === "ALL" ? "Semua Jenis Layanan" : sLayanan;
