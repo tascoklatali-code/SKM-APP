@@ -81,11 +81,16 @@
     <!-- Bagian Poster Utama -->
     <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-md border-2 border-slate-300 print-border rounded-sm">
         
-        <div class="text-center uppercase font-bold text-sm md:text-base space-y-1 mb-8 pt-4">
-            <h3 class="text-2xl font-extrabold tracking-wide mb-4">Indeks Kepuasan Masyarakat (IKM)</h3>
-            <p class="text-sm md:text-base">Dinas/ Kantor/ Unit/ UPT : <span id="pubLokus" class="border-b border-dotted border-black px-2 font-bold">...</span></p>
-            <p class="text-sm md:text-base">Kementerian/Lembaga/Pemerintah Prov/ Kab/Kota : <span id="pubInstansi" class="border-b border-dotted border-black px-2 font-bold">...</span></p>
-            <p class="text-sm md:text-base">Bulan/Triwulan/ Semester/ <span id="pubPeriodeTeks">Tahun</span> : <span id="pubTahun" class="border-b border-dotted border-black px-2 font-bold">...</span></p>
+        <div class="text-center uppercase font-bold text-sm md:text-base space-y-2 mb-8 pt-4">
+            <h3 class="text-2xl font-extrabold tracking-wide mb-6">Indeks Kepuasan Masyarakat (IKM)</h3>
+            <!-- Baris Pertama: Merujuk unit_dinilai -->
+            <div id="pubLokus" class="text-lg font-extrabold text-slate-900 tracking-wide">...</div>
+            <!-- Baris Kedua: Merujuk lembaga_dinilai -->
+            <div id="pubInstansi" class="text-sm font-semibold text-slate-600 tracking-wide">...</div>
+            <!-- Baris Ketiga: Periode dan Tahun penilaian -->
+            <div class="text-sm font-medium text-slate-500">
+                Periode Penilaian : <span id="pubTahun" class="font-bold">...</span>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 border border-black">
@@ -198,7 +203,7 @@
                 tahunSelect.appendChild(opt);
             }
 
-            document.getElementById("pubInstansi").innerText = "Pemerintah Kabupaten / Kota"; 
+            document.getElementById("pubInstansi").innerText = "PEMERINTAH KABUPATEN / KOTA"; 
         }
 
         function filterData() {
@@ -251,7 +256,7 @@
             const sLayanan = document.getElementById("filterLayanan").value;
             const sTahun = document.getElementById("filterTahun").value;
 
-            document.getElementById("pubLokus").innerText = sLokus === "ALL" ? "Semua Unit Pelayanan" : sLokus.toUpperCase();
+            document.getElementById("pubLokus").innerText = sLokus === "ALL" ? "SEMUA UNIT PELAYANAN" : sLokus.toUpperCase();
             document.getElementById("pubLayanan").innerText = sLayanan === "ALL" ? "Semua Jenis Layanan" : sLayanan;
             document.getElementById("pubTahun").innerText = sTahun === "ALL" ? new Date().getFullYear() : sTahun;
 
