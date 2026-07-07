@@ -9,14 +9,12 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .font-inter { font-family: 'Inter', sans-serif; }
-        /* Style khusus untuk cetak/print poster agar pas di kertas */
         @media print {
             body { background: white; padding: 0; }
             .no-print { display: none; }
             .print-border { border: 4px double #000 !important; padding: 2rem !important; }
         }
     </style>
-    <!-- PINTU SATPAM AMAN DI SINI -->
     <script>
         (function() {
             if (sessionStorage.getItem("isLoggedIn") !== "true") {
@@ -36,16 +34,9 @@
             </div>
             <div class="flex items-center gap-3">
                 <a href="dashboard.html" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition-all cursor-pointer no-underline">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                    </svg>
-                    &larr; Kembali ke Dashboard
+                    &larr; Kembali
                 </a>
-
                 <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition-all cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.82l-.24-2.13A17.928 17.928 0 0012 10.5c1.92 0 3.746.3 5.52.85l-.24 2.13M12 10.5a17.914 17.914 0 014.28 9.531H7.72A17.914 17.914 0 0112 10.5zm0 0V3.375c0-.621-.504-1.125-1.125-1.125h-2.25a1.125 1.125 0 00-1.125 1.125V10.5m5.625 0V3.375c0-.621-.504-1.125 1.125-1.125h2.25a1.125 1.125 0 011.125 1.125V10.5M3 16.5h.008v.008H3V16.5zm0 2.25h.008v.008H3v-.008zm0 2.25h.008v.008H3v-.008z" />
-                    </svg>
                     Cetak PDF
                 </button>
             </div>
@@ -71,29 +62,20 @@
                 </select>
             </div>
         </div>
-
-        <!-- Indikator memuat data tambahan -->
         <div id="pubLoading" class="hidden text-center text-xs font-semibold text-blue-600 mt-3 animate-pulse">
-            🔄 Memperbarui format poster publikasi secara dinamis...
+            🔄 Memperbarui format poster publikasi...
         </div>
     </div>
 
     <!-- Bagian Poster Utama -->
     <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-md border-2 border-slate-300 print-border rounded-sm">
         
-        <div class="text-center uppercase font-bold text-sm md:text-base space-y-2 mb-8 pt-4">
-            <h3 class="text-2xl font-extrabold tracking-wide mb-6">Indeks Kepuasan Masyarakat (IKM)</h3>
-            
-            <!-- Baris Pertama: Merujuk unit_dinilai -->
-            <div id="pubLokus" class="text-xl font-extrabold text-slate-900 tracking-wide">...</div>
-            
-            <!-- Baris Kedua: Dinamis merujuk ke lembaga_dinilai -->
-            <div id="pubInstansi" class="text-sm font-semibold text-slate-600 tracking-wide"></div>
-            
-            <!-- Baris Ketiga: Format dinamis penggabungan Periode + "Tahun" + Angka Tahun -->
-            <div class="text-sm font-medium text-slate-500">
-                Periode Penilaian : <span id="pubPeriodeGabungan" class="font-bold">...</span>
-            </div>
+        <!-- HEADER SERAGAM: Kapital, Tebal, Font & Ukuran Sama -->
+        <div class="text-center uppercase font-bold text-lg md:text-xl space-y-3 mb-8 pt-4 tracking-wide text-slate-950">
+            <div>Indeks Kepuasan Masyarakat (IKM)</div>
+            <div id="pubLokus">...</div>
+            <div id="pubInstansi">...</div>
+            <div id="pubPeriodeGabungan">...</div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 border border-black">
@@ -157,8 +139,7 @@
 
         <div class="text-center mt-8 space-y-1 text-xs md:text-sm font-bold text-slate-600 leading-relaxed uppercase">
             <p>Terima kasih atas penilaian yang telah anda berikan</p>
-            <p class="normal-case font-medium text-slate-500">Masukan Anda sangat bermanfaat untuk kemajuan unit kami agar terus memperbaiki</p>
-            <p class="normal-case font-medium text-slate-500">dan meningkatkan kualitas pelayanan bagi masyarakat</p>
+            <p class="normal-case font-medium text-slate-500">Masukan Anda sangat bermanfaat untuk kemajuan unit kami</p>
         </div>
     </div>
 
@@ -168,13 +149,8 @@
         document.addEventListener("DOMContentLoaded", function() {
             fetch(WEB_APP_URL)
                 .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        initFilters(data);
-                        renderData(data); 
-                    }
-                })
-                .catch(error => console.error("Gagal memuat data publikasi:", error));
+                .then(data => { if (data.status === "success") { initFilters(data); renderData(data); } })
+                .catch(error => console.error(error));
         });
 
         function initFilters(data) {
@@ -182,29 +158,11 @@
             const lokusSelect = document.getElementById("filterLokus");
             const tahunSelect = document.getElementById("filterTahun");
 
-            layananSelect.innerHTML = '<option value="ALL">-- Semua Layanan --</option>';
-            lokusSelect.innerHTML = '<option value="ALL">-- Semua Lokus --</option>';
-            tahunSelect.innerHTML = '<option value="ALL">-- Semua Tahun --</option>';
-
-            if (data.daftar_unit) {
-                data.daftar_unit.forEach(u => {
-                    let opt = document.createElement('option'); opt.value = u; opt.textContent = u;
-                    lokusSelect.appendChild(opt);
-                });
-            }
-
-            if (data.daftar_layanan) {
-                data.daftar_layanan.forEach(l => {
-                    let opt = document.createElement('option'); opt.value = l; opt.textContent = l;
-                    layananSelect.appendChild(opt);
-                });
-            }
+            if (data.daftar_unit) data.daftar_unit.forEach(u => { let o = document.createElement('option'); o.value = u; o.textContent = u; lokusSelect.appendChild(o); });
+            if (data.daftar_layanan) data.daftar_layanan.forEach(l => { let o = document.createElement('option'); o.value = l; o.textContent = l; layananSelect.appendChild(o); });
 
             const tahunSekarang = new Date().getFullYear();
-            for(let t = tahunSekarang; t >= tahunSekarang - 2; t--) {
-                let opt = document.createElement('option'); opt.value = t; opt.textContent = t;
-                tahunSelect.appendChild(opt);
-            }
+            for(let t = tahunSekarang; t >= tahunSekarang - 2; t--) { let o = document.createElement('option'); o.value = t; o.textContent = t; tahunSelect.appendChild(o); }
         }
 
         function filterData() {
@@ -213,7 +171,6 @@
             const tahun = document.getElementById("filterTahun").value;
 
             document.getElementById("pubLoading").classList.remove("hidden");
-
             let queryUrl = WEB_APP_URL + "?";
             if (lokus !== "ALL") queryUrl += "unit=" + encodeURIComponent(lokus) + "&";
             if (layanan !== "ALL") queryUrl += "layanan=" + encodeURIComponent(layanan) + "&";
@@ -221,82 +178,42 @@
 
             fetch(queryUrl)
                 .then(response => response.json())
-                .then(dataTerfilter => {
-                    if (dataTerfilter.status === "success") {
-                        renderData(dataTerfilter);
-                    }
-                    document.getElementById("pubLoading").classList.add("hidden");
-                })
-                .catch(error => {
-                    console.error("Gagal menyaring data poster:", error);
-                    document.getElementById("pubLoading").classList.add("hidden");
-                });
+                .then(data => { if (data.status === "success") renderData(data); document.getElementById("pubLoading").classList.add("hidden"); })
+                .catch(error => { console.error(error); document.getElementById("pubLoading").classList.add("hidden"); });
         }
 
         function renderData(data) {
             if(!data) return;
 
-            // 1. Render Nilai IKM
-            const nilai = Number(data.nilai_ikm) || 0;
-            document.getElementById("pubNilaiIKM").innerText = nilai.toFixed(2);
-            
-            // 2. Render Mutu Label
-            const labelMutu = data.mutu_pelayanan || "-";
-            const txtMutu = document.getElementById("pubLabelMutu");
-            txtMutu.innerText = labelMutu;
+            // Render Nilai
+            document.getElementById("pubNilaiIKM").innerText = (Number(data.nilai_ikm) || 0).toFixed(2);
+            document.getElementById("pubLabelMutu").innerText = data.mutu_pelayanan || "-";
 
-            if (labelMutu.trim().toUpperCase().startsWith("A")) {
-                txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-emerald-600 uppercase bg-slate-100";
-            } else if (labelMutu.trim().toUpperCase().startsWith("B")) {
-                txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-blue-600 uppercase bg-slate-100";
-            } else if (labelMutu.trim().toUpperCase().startsWith("C")) {
-                txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-amber-600 uppercase bg-slate-100";
-            } else {
-                txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-red-600 uppercase bg-slate-100";
-            }
-
-            // 3. Ambil parameter filter saat ini
+            // Header Seragam (Kapital & Bold)
             const sLokus = document.getElementById("filterLokus").value;
-            const sLayanan = document.getElementById("filterLayanan").value;
             const sTahun = document.getElementById("filterTahun").value;
-
-            // BARIS PERTAMA: Nama Unit / Lokus Dinilai
+            const angkaTahun = sTahun === "ALL" ? new Date().getFullYear() : sTahun;
+            
             document.getElementById("pubLokus").innerText = sLokus === "ALL" ? "SEMUA UNIT PELAYANAN" : sLokus.toUpperCase();
             
-            // BARIS KEDUA: Mengambil properti 'lembaga_dinilai' dari JSON hasil hitung Apps Script
             if (sLokus === "ALL") {
-                document.getElementById("pubInstansi").innerText = ""; // Kosongkan jika belum memfilter lokus
+                document.getElementById("pubInstansi").innerText = data.lembaga_dinilai ? data.lembaga_dinilai.toUpperCase() : "KEMENTERIAN DALAM NEGERI";
             } else {
-                // Menggunakan data kementerian/lembaga hasil lemparan backend Apps Script
                 document.getElementById("pubInstansi").innerText = data.lembaga_dinilai ? data.lembaga_dinilai.toUpperCase() : "";
             }
             
-            // BARIS KETIGA: Penggabungan Periode Penilaian + "Tahun" + Angka Tahun
-            const angkaTahun = sTahun === "ALL" ? new Date().getFullYear() : sTahun;
-            if (sLokus === "ALL") {
-                document.getElementById("pubPeriodeGabungan").innerText = angkaTahun;
-            } else {
-                const namaPeriode = data.periode_penilaian || "Semester I";
-                document.getElementById("pubPeriodeGabungan").innerText = `${namaPeriode} Tahun ${angkaTahun}`;
-            }
+            const namaPeriode = data.periode_penilaian || "Triwulan I";
+            document.getElementById("pubPeriodeGabungan").innerText = `PERIODE PENILAIAN : ${namaPeriode.toUpperCase()} TAHUN ${angkaTahun}`;
 
-            // Nama Layanan di sisi kanan
-            document.getElementById("pubLayanan").innerText = sLayanan === "ALL" ? "Semua Jenis Layanan" : sLayanan;
-
-            // 4. Sinkronisasi Data Responden
-            const total = data.total_responden || 0;
-            document.getElementById("resTotal").innerText = total;
+            // Lain-lain
+            document.getElementById("pubLayanan").innerText = document.getElementById("filterLayanan").value === "ALL" ? "Semua Jenis Layanan" : document.getElementById("filterLayanan").value;
+            document.getElementById("resTotal").innerText = data.total_responden || 0;
+            document.getElementById("resL").innerText = Math.floor((data.total_responden || 0) * 0.45);
+            document.getElementById("resP").innerText = Math.ceil((data.total_responden || 0) * 0.55);
+            document.getElementById("resTotal").innerText = data.total_responden || 0;
             
-            document.getElementById("resL").innerText = Math.floor(total * 0.45);
-            document.getElementById("resP").innerText = Math.ceil(total * 0.55);
-            
-            document.getElementById("eduSD").innerText = 0;
-            document.getElementById("eduSMP").innerText = 0;
-            document.getElementById("eduSMA").innerText = total;
-            document.getElementById("eduD3").innerText = 0;
-            document.getElementById("eduS1").innerText = 0;
-            document.getElementById("eduS2").innerText = 0;
-
+            // Default pendidikan dummy sesuai image
+            document.getElementById("eduSMA").innerText = data.total_responden || 0;
             document.getElementById("pubPeriodeTanggal").innerText = "01 Januari s/d 30 Juni " + angkaTahun;
         }
     </script>
