@@ -38,7 +38,6 @@
     </div>
 
     <script>
-        // TEMPELKAN URL WEB APP YANG BARU SAJA ANDA SALIN DI SINI
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4LEEaovijeNDGFJnDq8QrlBsKBoS2Icd_9kuaGv4roBfWnXj8ICWgeArEOmAtnEQnRg/exec";
 
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
@@ -51,30 +50,28 @@
             btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Memeriksa...`;
 
             try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: "cek_login",
-                        username: user,
-                        password: pass
-                    })
+                // PERBAIKAN: Mengubah pengiriman dari POST ke GET URL Parameters agar sesuai dengan doGet(e)
+                const loginUrl = `${WEB_APP_URL}?action=login&username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`;
+                
+                const response = await fetch(loginUrl, {
+                    method: 'GET',
+                    mode: 'cors'
                 });
                 
                 const data = await response.json();
 
                 if (data.status === "success") {
-                    // Simpan status login di session browser
                     sessionStorage.setItem("isLoggedIn", "true");
                     
-                    // Ambil rute halaman tujuan awal sebelum dialihkan ke login, default ke dashboard
                     const targetPage = sessionStorage.getItem("targetPage") || "dashboard.html";
                     sessionStorage.removeItem("targetPage"); 
                     
                     window.location.href = targetPage;
                 } else {
-                    alert(data.message);
+                    alert(data.message || "Username atau Password salah!");
                 }
             } catch (error) {
+                console.error("Login Error: ", error);
                 alert("Terjadi kesalahan koneksi sistem login.");
             } finally {
                 btn.disabled = false;
