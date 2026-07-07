@@ -83,13 +83,16 @@
         
         <div class="text-center uppercase font-bold text-sm md:text-base space-y-2 mb-8 pt-4">
             <h3 class="text-2xl font-extrabold tracking-wide mb-6">Indeks Kepuasan Masyarakat (IKM)</h3>
+            
             <!-- Baris Pertama: Merujuk unit_dinilai -->
-            <div id="pubLokus" class="text-lg font-extrabold text-slate-900 tracking-wide">...</div>
-            <!-- Baris Kedua: Merujuk lembaga_dinilai -->
+            <div id="pubLokus" class="text-xl font-extrabold text-slate-900 tracking-wide">...</div>
+            
+            <!-- Baris Kedua: Dinamis merujuk ke lembaga_dinilai dari Apps Script -->
             <div id="pubInstansi" class="text-sm font-semibold text-slate-600 tracking-wide">...</div>
-            <!-- Baris Ketiga: Periode dan Tahun penilaian -->
+            
+            <!-- Baris Ketiga: Menggabungkan teks Periode Penilaian + Nama Periode + Kata Hubung "Tahun" -->
             <div class="text-sm font-medium text-slate-500">
-                Periode Penilaian : <span id="pubTahun" class="font-bold">...</span>
+                Periode Penilaian : <span id="pubPeriodeGabungan" class="font-bold">...</span>
             </div>
         </div>
 
@@ -202,8 +205,6 @@
                 let opt = document.createElement('option'); opt.value = t; opt.textContent = t;
                 tahunSelect.appendChild(opt);
             }
-
-            document.getElementById("pubInstansi").innerText = "PEMERINTAH KABUPATEN / KOTA"; 
         }
 
         function filterData() {
@@ -235,9 +236,11 @@
         function renderData(data) {
             if(!data) return;
 
+            // 1. Render Nilai IKM
             const nilai = Number(data.nilai_ikm) || 0;
             document.getElementById("pubNilaiIKM").innerText = nilai.toFixed(2);
             
+            // 2. Render Mutu Label
             const labelMutu = data.mutu_pelayanan || "-";
             const txtMutu = document.getElementById("pubLabelMutu");
             txtMutu.innerText = labelMutu;
@@ -252,14 +255,30 @@
                 txtMutu.className = "w-full text-center border-t border-black font-extrabold py-2 text-base text-red-600 uppercase bg-slate-100";
             }
 
+            // 3. Ambil nilai filter saat ini
             const sLokus = document.getElementById("filterLokus").value;
             const sLayanan = document.getElementById("filterLayanan").value;
             const sTahun = document.getElementById("filterTahun").value;
 
+            // BARIS PERTAMA: Nama Unit / Lokus Dinilai
             document.getElementById("pubLokus").innerText = sLokus === "ALL" ? "SEMUA UNIT PELAYANAN" : sLokus.toUpperCase();
-            document.getElementById("pubLayanan").innerText = sLayanan === "ALL" ? "Semua Jenis Layanan" : sLayanan;
-            document.getElementById("pubTahun").innerText = sTahun === "ALL" ? new Date().getFullYear() : sTahun;
+            
+            // BARIS KEDUA: Diambil langsung secara dinamis dari kunci 'lembaga_dinilai' pada objek json response Apps Script
+            const namaLembaga = data.lembaga_dinilai || "PEMERINTAH KABUPATEN / KOTA";
+            document.getElementById("pubInstansi").innerText = sLokus === "ALL" ? "PEMERINTAH KABUPATEN / KOTA" : namaLembaga.toUpperCase();
+            
+            // BARIS KETIGA: Format dinamis penggabungan Periode + "Tahun" + Angka Tahun
+            const namaPeriode = data.periode_penilaian || "Semester I"; // fallback jika null dari sheet
+            const angkaTahun = sTahun === "ALL" ? new Date().getFullYear() : sTahun;
+            
+            document.getElementById("pubPeriodeGabungan").innerText = sLokus === "ALL" && sTahun === "ALL" 
+                ? `${angkaTahun}` 
+                : `${namaPeriode} Tahun ${angkaTahun}`;
 
+            // Nama Layanan di sisi kanan
+            document.getElementById("pubLayanan").innerText = sLayanan === "ALL" ? "Semua Jenis Layanan" : sLayanan;
+
+            // 4. Sinkronisasi Data Responden
             const total = data.total_responden || 0;
             document.getElementById("resTotal").innerText = total;
             
@@ -273,7 +292,7 @@
             document.getElementById("eduS1").innerText = 0;
             document.getElementById("eduS2").innerText = 0;
 
-            document.getElementById("pubPeriodeTanggal").innerText = "01 Januari s/d 30 Juni " + (sTahun === "ALL" ? new Date().getFullYear() : sTahun);
+            document.getElementById("pubPeriodeTanggal").innerText = "01 Januari s/d 30 Juni " + angkaTahun;
         }
     </script>
 </body>
