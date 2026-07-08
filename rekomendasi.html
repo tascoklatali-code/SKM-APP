@@ -18,15 +18,16 @@
 <body class="bg-slate-100 font-sans antialiased text-slate-800">
 
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <!-- HEADER UTAMA -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-            <div>
-                <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+        <!-- HEADER UTAMA (WARNA BIRU SEPERTI DASHBOARD IKM) -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-6 shadow-md flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+            <div class="text-white">
+                <h1 class="text-xl font-bold flex items-center gap-2 text-white">
                     ✨ Rekomendasi & Tindak Lanjut Berbasis Artificial Intelligence
                 </h1>
-                <p class="text-sm text-slate-500 mt-1">Analisis otomatis menggunakan Generative Artificial Intelligence berdasarkan 4 unsur pelayanan terendah secara real-time.</p>
+                <p class="text-sm text-blue-100 mt-1">Analisis otomatis menggunakan Generative Artificial Intelligence berdasarkan 4 unsur pelayanan terendah secara real-time.</p>
             </div>
-            <a href="dashboard.html" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold py-2 px-4 rounded-xl shadow-sm transition no-underline">
+            <!-- TOMBOL OREN DENGAN TEKS RATA KIRI -->
+            <a href="dashboard.html" class="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold py-2.5 px-4 rounded-xl shadow-sm transition no-underline text-left md:text-left flex items-center">
                 &larr; Kembali ke Dashboard
             </a>
         </div>
@@ -69,14 +70,11 @@
 
     <script>
         // ================= CONFIGURATION =================
-        // MASUKKAN URL DEPLOYMENT WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4LEEaovijeNDGFJnDq8QrlBsKBoS2Icd_9kuaGv4roBfWnXj8ICWgeArEOmAtnEQnRg/exec";
         // =================================================
 
-        // Mengambil API Key dari penyimpanan lokal browser (localStorage) agar aman
         let GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || ""; 
 
-        // Kamus nama lengkap singkatan unsur berdasarkan Permenpan RB
         const namaUnsurLengkap = {
             'U1': 'Persyaratan', 
             'U2': 'Sistem, Mekanisme, dan Prosedur', 
@@ -89,14 +87,11 @@
             'U9': 'Penanganan Pengaduan, Saran, dan Masukan'
         };
 
-        // Otomatis jalankan proses analisis sesaat setelah halaman selesai dimuat
         document.addEventListener("DOMContentLoaded", function() {
             generateRekomendasiAI();
         });
 
-        // Fungsi utama untuk menjembatani Google Sheets Data dan Gemini API
         async function generateRekomendasiAI() {
-            // Validasi keberadaan API Key Gemini
             if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
                 const inputKey = prompt("Masukkan API Key Gemini Anda (Aman, hanya disimpan lokal di browser Anda):");
                 if (inputKey && inputKey.trim() !== "") {
@@ -115,7 +110,6 @@
             const outputEl = document.getElementById('geminiOutput');
             const listEl = document.getElementById('lowElementsList');
 
-            // Setelan awal UI State (Loading Aktif)
             loadingEl.classList.remove('hidden');
             contentEl.classList.add('hidden');
             loadingTextEl.innerText = "Mengambil data rekapitulasi unsur SKM terkini dari Google Sheets...";
@@ -123,7 +117,6 @@
 
             let dataUnsurNyata = {};
 
-            // LANGKAH 1: Ambil Data secara Real-Time dari Google Sheets via Apps Script
             try {
                 const responseSheets = await fetch(`${SCRIPT_URL}?action=getUnsur`);
                 if (!responseSheets.ok) {
@@ -131,9 +124,8 @@
                 }
                 
                 const resData = await responseSheets.json();
-                console.log("Data dari Google Sheets:", resData); // Membantu pengecekan struktur objek via Inspect Console
+                console.log("Data dari Google Sheets:", resData);
 
-                // Adaptor Parsing Fleksibel (Mendukung pembungkusan objek .data maupun raw object)
                 if (resData && resData.status === "success" && resData.data) {
                     dataUnsurNyata = resData.data;
                 } else if (resData && resData.data) {
@@ -154,11 +146,10 @@
                 return;
             }
 
-            // LANGKAH 2: Sortir Unsur dari Nilai Terendah
             loadingTextEl.innerText = "Menganalisis skor terendah...";
             
             const sortedUnsur = Object.keys(dataUnsurNyata)
-                .filter(key => namaUnsurLengkap[key.trim().toUpperCase()]) // Normalisasi spasi dan kapitalisasi key
+                .filter(key => namaUnsurLengkap[key.trim().toUpperCase()]) 
                 .map(key => {
                     const cleanKey = key.trim().toUpperCase();
                     return { 
@@ -169,10 +160,8 @@
                 })
                 .sort((a, b) => a.skor - b.skor);
 
-            // Seleksi 4 Unsur dengan Nilai Terendah
             const prioritas = sortedUnsur.slice(0, 4);
 
-            // Validasi kecocokan format isi data unsur
             if (prioritas.length === 0) {
                 outputEl.innerHTML = `
                     <div class="bg-amber-50 border border-amber-200 text-amber-700 p-4 rounded-xl">
@@ -184,7 +173,6 @@
                 return;
             }
 
-            // Render komponen box 4 unsur terendah ke dalam layout grid HTML
             prioritas.forEach((unsur, index) => {
                 const card = document.createElement('div');
                 card.className = 'bg-white border border-slate-200 rounded-xl p-4 flex justify-between items-center shadow-xs';
@@ -199,7 +187,6 @@
                 listEl.appendChild(card);
             });
 
-            // LANGKAH 3: Konstruksi Prompt Strategis Menpan RB untuk Gemini AI
             loadingTextEl.innerText = "Artificial Intelligence sedang merumuskan rekomendasi taktis perbaikan...";
             
             let promptText = `Anda adalah seorang ahli Analis Pelayanan Publik dan Kepuasan Masyarakat profesional di Indonesia. \nBerdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pelayanan dengan nilai indeks terendah yang memerlukan tindakan perbaikan segera:\n\n`;
@@ -208,9 +195,8 @@
                 promptText += `${i+1}. Unsur [${unsur.id}] ${unsur.nama} dengan skor nilai: ${unsur.skor.toFixed(2)}\n`;
             });
 
-            promptText += `\nBerikan rekomendasi tindakan perbaikan konkret, taktis, dan aplikatif untuk masing-masing dari ke-4 unsur di atas agar kualitas pelayanan publik dapat meningkat secara signifikan sesuai standar regulasi Menpan RB. Gunakan format Markdown yang rapi dengan poin-poin yang jelas dan profesional.`;
+            promptText += `\nBerikan analisis komparatif serta rekomendasi tindakan perbaikan konkrit yang terbagi atas aksi jangka pendek (quick wins) dan jangka panjang untuk masing-masing ke-4 unsur di atas agar kualitas pelayanan publik meningkat secara signifikan sesuai standar regulasi Menpan RB. Gunakan format Markdown yang rapi dengan poin-poin yang jelas dan profesional.`;
 
-            // LANGKAH 4: Eksekusi Request Post ke Endpoint API Gemini 2.5 Flash
             const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             try {
@@ -227,22 +213,13 @@
                 const data = await response.json();
                 const rawMarkdown = data.candidates[0].content.parts[0].text;
 
-                // Regex parser untuk menerjemahkan teks mentah format Markdown dari AI menjadi HTML tag Tailwind secara rapi
-                const htmlContent = rawMarkdown
-                    .replace(/^### (.*$)/gim, '<h4 class="text-lg font-bold text-slate-800 mt-4 mb-2">$1</h4>')
-                    .replace(/^## (.*$)/gim, '<h3 class="text-xl font-bold text-slate-800 mt-5 mb-3">$1</h3>')
-                    .replace(/^# (.*$)/gim, '<h2 class="text-2xl font-bold text-slate-900 mt-6 mb-4">$1</h2>')
-                    .replace(/^\*\s(.*$)/gim, '<li class="ml-4 list-disc text-slate-700">$1</li>')
-                    .replace(/^\d+\.\s(.*$)/gim, '<li class="ml-4 list-decimal text-slate-700">$1</li>')
-                    .replace(/\*\*(.*?)\*\*/gim, '<strong class="font-bold text-slate-900">$1</strong>')
-                    .replace(/\n/g, '<br>');
-
-                outputEl.innerHTML = `<div class="text-slate-700 space-y-2">${htmlContent}</div>`;
+                const htmlOutput = parseMarkdownToTailwind(rawMarkdown);
+                outputEl.innerHTML = htmlOutput;
 
             } catch (error) {
                 console.error("Gemini API Error:", error);
                 if (error.message.includes("401")) {
-                    localStorage.removeItem('gemini_api_key'); // Hapus key lokal otomatis jika terindikasi invalid/expired
+                    localStorage.removeItem('gemini_api_key'); 
                     outputEl.innerHTML = `
                         <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
                             <p class="font-semibold">⚠️ API Key Ditolak (Error 401).</p>
@@ -256,15 +233,91 @@
                         </div>`;
                 }
             } finally {
-                // Tutup Loading State dan Tampilkan Konten Utama
                 loadingEl.classList.add('hidden');
                 contentEl.classList.remove('hidden');
             }
         }
 
-        // Fungsi pemicu tombol manual penyegaran rekomendasi
         function regenerateAnalisis() {
             generateRekomendasiAI();
+        }
+
+        // Fungsi Parser Markdown Terstruktur ke HTML Tailwind CSS
+        function parseMarkdownToTailwind(markdown) {
+            const lines = markdown.split('\n');
+            let html = '';
+            let inList = false;
+            let listType = ''; 
+
+            function closeList() {
+                if (inList) {
+                    html += `</${listType}>`;
+                    inList = false;
+                    listType = '';
+                }
+            }
+
+            lines.forEach(line => {
+                let trimmed = line.trim();
+
+                if (trimmed.startsWith('#')) {
+                    closeList();
+                    let level = 0;
+                    while (trimmed.startsWith('#')) {
+                        level++;
+                        trimmed = trimmed.substring(1);
+                    }
+                    trimmed = trimmed.trim();
+                    trimmed = trimmed.replace(/\*\*(.*?)\*\*/g, '$1');
+
+                    if (level === 1) {
+                        html += `<h2 class="text-2xl font-bold text-slate-950 mt-6 mb-3 border-b border-slate-200 pb-2">${trimmed}</h2>`;
+                    } else if (level === 2) {
+                        html += `<h3 class="text-xl font-bold text-slate-900 mt-5 mb-2">${trimmed}</h3>`;
+                    } else {
+                        html += `<h4 class="text-base font-bold text-blue-800 mt-4 mb-1.5">${trimmed}</h4>`;
+                    }
+                    return;
+                }
+
+                const ulMatch = line.match(/^(\s*)([*+-])\s(.*)/);
+                if (ulMatch) {
+                    const content = ulMatch[3].trim().replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
+                    if (!inList || listType !== 'ul') {
+                        closeList();
+                        html += '<ul class="list-disc pl-6 space-y-1 my-2 text-slate-700">';
+                        inList = true;
+                        listType = 'ul';
+                    }
+                    html += `<li>${content}</li>`;
+                    return;
+                }
+
+                const olMatch = line.match(/^(\s*)(\d+)\.\s(.*)/);
+                if (olMatch) {
+                    const content = olMatch[3].trim().replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
+                    if (!inList || listType !== 'ol') {
+                        closeList();
+                        html += '<ol class="list-decimal pl-6 space-y-1.5 my-2 text-slate-700">';
+                        inList = true;
+                        listType = 'ol';
+                    }
+                    html += `<li>${content}</li>`;
+                    return;
+                }
+
+                if (trimmed === '') {
+                    closeList();
+                    return;
+                }
+
+                closeList();
+                const paragraphContent = trimmed.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
+                html += `<p class="text-slate-700 mb-2 leading-relaxed">${paragraphContent}</p>`;
+            });
+
+            closeList();
+            return html;
         }
     </script>
 </body>
