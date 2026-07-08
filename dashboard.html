@@ -26,7 +26,8 @@
                 <p class="text-blue-100 text-sm mt-1">Berdasarkan Permenpan RB Nomor 14 Tahun 2017</p>
             </div>
             <div class="flex items-center gap-3">
-                    <a href="rekomendasi.html" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow transition flex items-center gap-2 no-underline">
+                    <!-- DITAMBAHKAN ID PADA TOMBOL REKOMENDASI DI BAWAH INI -->
+                    <a id="btnRekomendasi" href="rekomendasi.html" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow transition flex items-center gap-2 no-underline">
                         <span>✨</span> Rekomendasi AI Gemini
                     </a>
 
@@ -163,6 +164,9 @@
                         perbaruiTampilanDashboard(data.total_responden, data.nilai_ikm, data.mutu_pelayanan);
                         buatGrafikBatang(data.nrr_unsur);
 
+                        // Perbarui URL tombol rekomendasi pertama kali saat data termuat
+                        perbaruiUrlRekomendasi();
+
                         // Tukar tampilan dari loading ke konten dashboard
                         document.getElementById("loadingStatus").classList.add("hidden");
                         document.getElementById("dashboardContent").classList.remove("hidden");
@@ -175,6 +179,23 @@
                     document.getElementById("loadingStatus").innerText = "Terjadi kesalahan koneksi saat mengambil data.";
                 });
         });
+
+        // Fungsi baru untuk memperbarui tautan href pada tombol rekomendasi AI Gemini
+        function perbaruiUrlRekomendasi() {
+            const unitTerpilih = document.getElementById('filterUnit').value;
+            const layananTerpilih = document.getElementById('filterLayanan').value;
+            
+            let baseUrl = "rekomendasi.html?";
+            let params = [];
+            
+            if (unitTerpilih !== "ALL") params.push("unit=" + encodeURIComponent(unitTerpilih));
+            if (layananTerpilih !== "ALL") params.push("layanan=" + encodeURIComponent(layananTerpilih));
+            
+            const btnRekomendasi = document.getElementById('btnRekomendasi');
+            if (btnRekomendasi) {
+                btnRekomendasi.href = baseUrl + params.join("&");
+            }
+        }
 
         // Fungsi pembantu untuk merubah isi komponen text-box indikator utama
         function perbaruiTampilanDashboard(totalResponden, nilaiIkm, mutuPelayanan) {
@@ -269,7 +290,6 @@
             const selectUnit = document.getElementById('filterUnit');
             const selectLayanan = document.getElementById('filterLayanan');
 
-            // Cek ketersediaan daftar pilihan unik dari payload API/Sheets Anda
             if (data.daftar_unit) {
                 data.daftar_unit.forEach(unit => {
                     const opt = document.createElement('option');
@@ -291,27 +311,25 @@
             const unitTerpilih = document.getElementById('filterUnit').value;
             const layananTerpilih = document.getElementById('filterLayanan').value;
 
-            // Kirim query penapis ke backend Web App Google Apps Script Anda
-            // Struktur pemanggilan: WEB_APP_URL?unit=...&layanan=...
+            // Setiap kali filter dropdown berubah, URL tujuan tombol Gemini ikut diperbarui
+            perbaruiUrlRekomendasi();
+
             let queryUrl = WEB_APP_URL + "?";
             if (unitTerpilih !== "ALL") queryUrl += "unit=" + encodeURIComponent(unitTerpilih) + "&";
             if (layananTerpilih !== "ALL") queryUrl += "layanan=" + encodeURIComponent(layananTerpilih);
 
-            // Munculkan tanda memuat data tipis saat memproses penyaringan baru
             document.getElementById("totalResponden").innerText = "...";
 
             fetch(queryUrl)
                 .then(res => res.json())
                 .then(dataHasilFilter => {
                     if(dataHasilFilter.status === "success") {
-                        // Ganti angka resume indikator dashboard
                         perbaruiTampilanDashboard(
                             dataHasilFilter.total_responden, 
                             dataHasilFilter.nilai_ikm, 
                             dataHasilFilter.mutu_pelayanan
                         );
 
-                        // Suntikkan data array baru ke chart dan suruh Chart.js mendesain ulang bentuk batangnya
                         if(grafikChartInstance) {
                             grafikChartInstance.data.datasets[0].data = dataHasilFilter.nrr_unsur;
                             grafikChartInstance.update();
@@ -323,4 +341,3 @@
     </script>
 </body>
 </html>
-
