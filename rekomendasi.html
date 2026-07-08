@@ -26,7 +26,7 @@
                 </h1>
                 <p class="text-sm text-blue-100 mt-1 max-w-2xl break-words">Analisis otomatis menggunakan Generative Artificial Intelligence berdasarkan 4 unsur pelayanan terendah secara real-time.</p>
             </div>
-            <!-- TOMBOL NAVIGASI RATA KANAN & TIDAK TERLIPAT -->
+            <!-- TOMBOL NAVIGASI RATA KANAN -->
             <div class="w-full md:w-auto flex justify-start md:justify-end shrink-0">
                 <a href="dashboard.html" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold py-2.5 px-4 rounded-xl shadow-sm transition no-underline whitespace-nowrap flex items-center gap-1">
                     &larr; Dashboard IKM
@@ -34,26 +34,20 @@
             </div>
         </div>
 
-        <!-- BOX 4 UNSUR PRIORITAS + KOMPONEN FILTER DINAMIS -->
+        <!-- BOX 4 UNSUR PRIORITAS + KOMPONEN FILTER DINAMIS REAL-TIME -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 pb-4 border-b border-slate-100">
                 <h3 class="text-sm font-bold text-red-600 uppercase tracking-wider flex items-center gap-2">
                     ⚠️ 4 Unsur Prioritas Utama Perbaikan (Skor Terendah):
                 </h3>
                 
-                <!-- FILTER INTERAKTIF -->
+                <!-- FILTER INTERAKTIF - SEKARANG OTOMATIS BERISI DATA DARI GOOGLE SHEETS -->
                 <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                    <select id="filterUnit" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="filterUnit" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[200px]">
                         <option value="">-- Semua Unit --</option>
-                        <option value="Unit 1">Unit 1</option>
-                        <option value="Unit 2">Unit 2</option>
-                        <option value="Unit 3">Unit 3</option>
                     </select>
-                    <select id="filterLayanan" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="filterLayanan" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[200px]">
                         <option value="">-- Semua Layanan --</option>
-                        <option value="Layanan A">Layanan A</option>
-                        <option value="Layanan B">Layanan B</option>
-                        <option value="Layanan C">Layanan C</option>
                     </select>
                 </div>
             </div>
@@ -108,9 +102,56 @@
             'U9': 'Penanganan Pengaduan, Saran, dan Masukan'
         };
 
-        document.addEventListener("DOMContentLoaded", function() {
+        // Menjalankan fungsi inisialisasi filter opsi dan pemuatan data saat halaman dibuka
+        document.addEventListener("DOMContentLoaded", async function() {
+            await loadFilterOptions();
             generateRekomendasiAI();
         });
+
+        // FUNGSI UNTUK MEMANGGIL DATA OPSI FILTER LANGSUNG DARI GOOGLE SHEETS
+        async function loadFilterOptions() {
+            try {
+                // Memanggil endpoint Apps Script yang mengembalikan list opsi unik dari sheet karakteristik_responden
+                const response = await fetch(`${SCRIPT_URL}?action=getFilterOptions`);
+                if (!response.ok) return;
+                
+                const result = await response.json();
+                if (result.status === "success" || result.data) {
+                    const dataOptions = result.data || result;
+                    
+                    const filterUnit = document.getElementById('filterUnit');
+                    const filterLayanan = document.getElementById('filterLayanan');
+                    
+                    // Isi dropdown unit_dinilai
+                    if (dataOptions.unit_dinilai && dataOptions.unit_dinilai.length > 0) {
+                        dataOptions.unit_dinilai.forEach(unit => {
+                            if (unit) {
+                                const opt = document.createElement('option');
+                                opt.value = unit;
+                                opt.innerText = unit;
+                                filterUnit.appendChild(opt);
+                            }
+                        });
+                    }
+                    
+                    // Isi dropdown Jenis_Layanan
+                    if (dataOptions.Jenis_Layanan && dataOptions.Jenis_Layanan.length > 0) {
+                        dataOptions.Jenis_Layanan.forEach(layanan => {
+                            if (layanan) {
+                                const opt = document.createElement('option');
+                                opt.value = layanan;
+                                opt.innerText = layanan;
+                                filterLayanan.appendChild(opt);
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Gagal memuat opsi filter otomatis:", e);
+                // Fallback jika Google Apps Script belum mendukung action=getFilterOptions
+                // Dropdown akan tetap menampilkan opsi utama kosong (-- Semua --)
+            }
+        }
 
         async function generateRekomendasiAI() {
             if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
@@ -131,19 +172,19 @@
             const outputEl = document.getElementById('geminiOutput');
             const listEl = document.getElementById('lowElementsList');
 
-            // Ambil nilai dari filter pilihan user
+            // Mengambil nilai filter yang sedang dipilih user
             const selectedUnit = document.getElementById('filterUnit').value;
             const selectedLayanan = document.getElementById('filterLayanan').value;
 
             loadingEl.classList.remove('hidden');
             contentEl.classList.add('hidden');
-            loadingTextEl.innerText = "Mengambil data rekapitulasi unsur SKM berdasarkan filter dari Google Sheets...";
+            loadingTextEl.innerText = "Mengambil data rekapitulasi unsur SKM berdasarkan kriteria filter dari Google Sheets...";
             listEl.innerHTML = '';
 
             let dataUnsurNyata = {};
 
             try {
-                // Menyusun URL dengan parameter filter dinamis
+                // Menyusun URL dengan parameter filter dinamis yang sesuai dengan nama kolom database Anda
                 let fetchUrl = `${SCRIPT_URL}?action=getUnsur`;
                 if (selectedUnit) fetchUrl += `&unit_dinilai=${encodeURIComponent(selectedUnit)}`;
                 if (selectedLayanan) fetchUrl += `&Jenis_Layanan=${encodeURIComponent(selectedLayanan)}`;
@@ -195,8 +236,8 @@
             if (prioritas.length === 0) {
                 outputEl.innerHTML = `
                     <div class="bg-amber-50 border border-amber-200 text-amber-700 p-4 rounded-xl">
-                        <p class="font-semibold">⚠️ Format data dari Google Sheets tidak cocok.</p>
-                        <p class="text-xs mt-1">Sistem tidak menemukan properti key 'U1' s.d 'U9' untuk filter pilihan ini. Pastikan pilihan filter memiliki record data di database Anda.</p>
+                        <p class="font-semibold">⚠️ Data Kosong atau Tidak Ditemukan.</p>
+                        <p class="text-xs mt-1">Sistem tidak menemukan properti key 'U1' s.d 'U9' untuk filter pilihan ini. Pastikan kombinasi kriteria filter tersebut memiliki data penilaian di database Anda.</p>
                     </div>`;
                 loadingEl.classList.add('hidden');
                 contentEl.classList.remove('hidden');
@@ -219,7 +260,6 @@
 
             loadingTextEl.innerText = "Artificial Intelligence sedang merumuskan rekomendasi taktis baru berdasarkan filter...";
             
-            // Context filter ditambahkan ke prompt AI agar rekomendasi lebih kontekstual
             let promptText = `Anda adalah seorang ahli Analis Pelayanan Publik dan Kepuasan Masyarakat profesional di Indonesia. \nBerdasarkan data Survei Kepuasan Masyarakat (SKM) `;
             if (selectedUnit || selectedLayanan) {
                 promptText += `pada filter khusus (${selectedUnit ? 'Unit: ' + selectedUnit : ''}${selectedUnit && selectedLayanan ? ', ' : ''}${selectedLayanan ? 'Jenis Layanan: ' + selectedLayanan : ''}) `;
