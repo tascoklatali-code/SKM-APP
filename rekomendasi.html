@@ -34,15 +34,21 @@
             </div>
         </div>
 
-        <!-- BOX 4 UNSUR PRIORITAS (STATUS FILTER DITAMPILKAN DI SINI) -->
+        <!-- BOX 4 UNSUR PRIORITAS + KOMPONEN FILTER DINAMIS REAL-TIME -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-4 border-b border-slate-100">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 pb-4 border-b border-slate-100">
                 <h3 class="text-sm font-bold text-red-600 uppercase tracking-wider flex items-center gap-2">
                     ⚠️ 4 Unsur Prioritas Utama Perbaikan (Skor Terendah):
                 </h3>
-                <!-- Penanda Status Filter Aktif -->
-                <div id="filterStatus" class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 font-medium">
-                    Filter: Semua Data
+                
+                <!-- FILTER INTERAKTIF - SEKARANG OTOMATIS BERISI DATA DARI GOOGLE SHEETS -->
+                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <select id="filterUnit" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[200px]">
+                        <option value="">-- Semua Unit --</option>
+                    </select>
+                    <select id="filterLayanan" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[200px]">
+                        <option value="">-- Semua Layanan --</option>
+                    </select>
                 </div>
             </div>
             
@@ -96,9 +102,56 @@
             'U9': 'Penanganan Pengaduan, Saran, dan Masukan'
         };
 
-        document.addEventListener("DOMContentLoaded", function() {
+        // Menjalankan fungsi inisialisasi filter opsi dan pemuatan data saat halaman dibuka
+        document.addEventListener("DOMContentLoaded", async function() {
+            await loadFilterOptions();
             generateRekomendasiAI();
         });
+
+        // FUNGSI UNTUK MEMANGGIL DATA OPSI FILTER LANGSUNG DARI GOOGLE SHEETS
+        async function loadFilterOptions() {
+            try {
+                // Memanggil endpoint Apps Script yang mengembalikan list opsi unik dari sheet karakteristik_responden
+                const response = await fetch(`${SCRIPT_URL}?action=getFilterOptions`);
+                if (!response.ok) return;
+                
+                const result = await response.json();
+                if (result.status === "success" || result.data) {
+                    const dataOptions = result.data || result;
+                    
+                    const filterUnit = document.getElementById('filterUnit');
+                    const filterLayanan = document.getElementById('filterLayanan');
+                    
+                    // Isi dropdown unit_dinilai
+                    if (dataOptions.unit_dinilai && dataOptions.unit_dinilai.length > 0) {
+                        dataOptions.unit_dinilai.forEach(unit => {
+                            if (unit) {
+                                const opt = document.createElement('option');
+                                opt.value = unit;
+                                opt.innerText = unit;
+                                filterUnit.appendChild(opt);
+                            }
+                        });
+                    }
+                    
+                    // Isi dropdown Jenis_Layanan
+                    if (dataOptions.Jenis_Layanan && dataOptions.Jenis_Layanan.length > 0) {
+                        dataOptions.Jenis_Layanan.forEach(layanan => {
+                            if (layanan) {
+                                const opt = document.createElement('option');
+                                opt.value = layanan;
+                                opt.innerText = layanan;
+                                filterLayanan.appendChild(opt);
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Gagal memuat opsi filter otomatis:", e);
+                // Fallback jika Google Apps Script belum mendukung action=getFilterOptions
+                // Dropdown akan tetap menampilkan opsi utama kosong (-- Semua --)
+            }
+        }
 
         async function generateRekomendasiAI() {
             if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
@@ -118,28 +171,20 @@
             const contentEl = document.getElementById('aiContent');
             const outputEl = document.getElementById('geminiOutput');
             const listEl = document.getElementById('lowElementsList');
-            const filterStatusEl = document.getElementById('filterStatus');
 
-            // MEMBACA PARAMETER FILTER DARI URL DASHBOARD
-            const urlParams = new URLSearchParams(window.location.search);
-            const selectedUnit = urlParams.get('unit_dinilai');
-            const selectedLayanan = urlParams.get('Jenis_Layanan');
-
-            // Update Teks Indikator Filter Aktif di Halaman
-            let labelFilter = [];
-            if (selectedUnit) labelFilter.push(`Unit: ${selectedUnit}`);
-            if (selectedLayanan) labelFilter.push(`Layanan: ${selectedLayanan}`);
-            filterStatusEl.innerText = labelFilter.length > 0 ? `Filter aktif: ${labelFilter.join(' | ')}` : "Filter: Semua Data";
+            // Mengambil nilai filter yang sedang dipilih user
+            const selectedUnit = document.getElementById('filterUnit').value;
+            const selectedLayanan = document.getElementById('filterLayanan').value;
 
             loadingEl.classList.remove('hidden');
             contentEl.classList.add('hidden');
-            loadingTextEl.innerText = "Mengambil data rekapitulasi unsur SKM berdasarkan filter dashboard...";
+            loadingTextEl.innerText = "Mengambil data rekapitulasi unsur SKM berdasarkan kriteria filter dari Google Sheets...";
             listEl.innerHTML = '';
 
             let dataUnsurNyata = {};
 
             try {
-                // Susun URL Apps Script menggunakan filter dinamis bawaan URL
+                // Menyusun URL dengan parameter filter dinamis yang sesuai dengan nama kolom database Anda
                 let fetchUrl = `${SCRIPT_URL}?action=getUnsur`;
                 if (selectedUnit) fetchUrl += `&unit_dinilai=${encodeURIComponent(selectedUnit)}`;
                 if (selectedLayanan) fetchUrl += `&Jenis_Layanan=${encodeURIComponent(selectedLayanan)}`;
@@ -150,7 +195,7 @@
                 }
                 
                 const resData = await responseSheets.json();
-                console.log("Data Terfilter Sukses:", resData);
+                console.log("Data Terfilter dari Google Sheets:", resData);
 
                 if (resData && resData.status === "success" && resData.data) {
                     dataUnsurNyata = resData.data;
@@ -165,14 +210,14 @@
                 outputEl.innerHTML = `
                     <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
                         <p class="font-semibold">⚠️ Gagal mengambil data dari Google Sheets.</p>
-                        <p class="text-xs mt-1 text-red-500">Detail: ${error.message}.</p>
+                        <p class="text-xs mt-1 text-red-500">Detail: ${error.message}. <br>Pastikan backend Apps Script Anda memproses parameter query <code>unit_dinilai</code> dan <code>Jenis_Layanan</code> dengan benar.</p>
                     </div>`;
                 loadingEl.classList.add('hidden');
                 contentEl.classList.remove('hidden');
                 return;
             }
 
-            loadingTextEl.innerText = "Menganalisis skor terendah...";
+            loadingTextEl.innerText = "Menganalisis skor terendah berdasarkan kriteria filter...";
             
             const sortedUnsur = Object.keys(dataUnsurNyata)
                 .filter(key => namaUnsurLengkap[key.trim().toUpperCase()]) 
@@ -191,8 +236,8 @@
             if (prioritas.length === 0) {
                 outputEl.innerHTML = `
                     <div class="bg-amber-50 border border-amber-200 text-amber-700 p-4 rounded-xl">
-                        <p class="font-semibold">⚠️ Data Kosong atau Tidak Cocok.</p>
-                        <p class="text-xs mt-1">Sistem tidak menemukan properti key 'U1' s.d 'U9' untuk filter ini.</p>
+                        <p class="font-semibold">⚠️ Data Kosong atau Tidak Ditemukan.</p>
+                        <p class="text-xs mt-1">Sistem tidak menemukan properti key 'U1' s.d 'U9' untuk filter pilihan ini. Pastikan kombinasi kriteria filter tersebut memiliki data penilaian di database Anda.</p>
                     </div>`;
                 loadingEl.classList.add('hidden');
                 contentEl.classList.remove('hidden');
@@ -217,7 +262,7 @@
             
             let promptText = `Anda adalah seorang ahli Analis Pelayanan Publik dan Kepuasan Masyarakat profesional di Indonesia. \nBerdasarkan data Survei Kepuasan Masyarakat (SKM) `;
             if (selectedUnit || selectedLayanan) {
-                promptText += `pada lingkup spesifik (${selectedUnit ? 'Unit: ' + selectedUnit : ''}${selectedUnit && selectedLayanan ? ', ' : ''}${selectedLayanan ? 'Jenis Layanan: ' + selectedLayanan : ''}) `;
+                promptText += `pada filter khusus (${selectedUnit ? 'Unit: ' + selectedUnit : ''}${selectedUnit && selectedLayanan ? ', ' : ''}${selectedLayanan ? 'Jenis Layanan: ' + selectedLayanan : ''}) `;
             }
             promptText += `terbaru, ditemukan 4 unsur pelayanan dengan nilai indeks terendah:\n\n`;
 
@@ -248,11 +293,20 @@
 
             } catch (error) {
                 console.error("Gemini API Error:", error);
-                outputEl.innerHTML = `
-                    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
-                        <p class="font-semibold">⚠️ Gagal memuat rekomendasi otomatis AI.</p>
-                        <p class="text-xs mt-1 text-red-500">Detail Kesalahan: ${error.message}.</p>
-                    </div>`;
+                if (error.message.includes("401")) {
+                    localStorage.removeItem('gemini_api_key'); 
+                    outputEl.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
+                            <p class="font-semibold">⚠️ API Key Ditolak (Error 401).</p>
+                            <p class="text-xs mt-1 text-red-500">Kunci lama yang tersimpan salah atau tidak valid. Jalankan perintah <strong>Muat Ulang Halaman (Refresh)</strong> untuk memunculkan kembali pop-up pengisian API Key yang baru.</p>
+                        </div>`;
+                } else {
+                    outputEl.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
+                            <p class="font-semibold">⚠️ Gagal memuat rekomendasi otomatis AI.</p>
+                            <p class="text-xs mt-1 text-red-500">Detail Kesalahan: ${error.message}. Pastikan koneksi internet stabil.</p>
+                        </div>`;
+                }
             } finally {
                 loadingEl.classList.add('hidden');
                 contentEl.classList.remove('hidden');
@@ -263,6 +317,7 @@
             generateRekomendasiAI();
         }
 
+        // Fungsi Parser Markdown Terstruktur ke HTML Tailwind CSS
         function parseMarkdownToTailwind(markdown) {
             const lines = markdown.split('\n');
             let html = '';
@@ -302,7 +357,7 @@
 
                 const ulMatch = line.match(/^(\s*)([*+-])\s(.*)/);
                 if (ulMatch) {
-                    const content = ulMatch[3].trim().replace(/\*\frac{.*?}{.*?}/g, '').replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
+                    const content = ulMatch[3].trim().replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
                     if (!inList || listType !== 'ul') {
                         closeList();
                         html += '<ul class="list-disc pl-6 space-y-1 my-2 text-slate-700">';
