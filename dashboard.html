@@ -1,325 +1,325 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard IKM - Survei Kepuasan Masyarakat</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard IKM - Survei Kepuasan Masyarakat</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- PINTU SATPAM AMAN DI SINI -->
-    <script>
-        (function() {
-            if (sessionStorage.getItem("isLoggedIn") !== "true") {
-                sessionStorage.setItem("targetPage", window.location.pathname.split("/").pop());
-                window.location.href = "login.html";
-            }
-        })();
-    </script>
+    <!-- PINTU SATPAM AMAN DI SINI -->
+    <script>
+        (function() {
+            if (sessionStorage.getItem("isLoggedIn") !== "true") {
+                sessionStorage.setItem("targetPage", window.location.pathname.split("/").pop());
+                window.location.href = "login.html";
+            }
+        })();
+    </script>
 </head>
 <body class="bg-slate-100 font-sans antialiased">
 
-    <header class="bg-blue-600 text-white shadow-md py-6 px-4 mb-8">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight">DASHBOARD REAL-TIME IKM</h1>
-                <p class="text-blue-100 text-sm mt-1">Berdasarkan Permenpan RB Nomor 14 Tahun 2017</p>
-            </div>
-            <div class="flex items-center gap-3">
-                    <a href="rekomendasi.html" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow transition flex items-center gap-2 no-underline">
-                        <span>✨</span> Rekomendasi AI Gemini
-                    </a>
+    <header class="bg-blue-600 text-white shadow-md py-6 px-4 mb-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">DASHBOARD REAL-TIME IKM</h1>
+                <p class="text-blue-100 text-sm mt-1">Berdasarkan Permenpan RB Nomor 14 Tahun 2017</p>
+            </div>
+            <div class="flex items-center gap-3">
+                    <a href="rekomendasi.html" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow transition flex items-center gap-2 no-underline">
+                        <span>✨</span> Rekomendasi AI Gemini
+                    </a>
 
-                    <a href="publikasi.html" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow transition flex items-center gap-2 no-underline">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.82l-.24-2.13A17.928 17.928 0 0012 10.5c1.92 0 3.746.3 5.52.85l-.24 2.13M12 10.5a17.914 17.914 0 014.28 9.531H7.72A17.914 17.914 0 0112 10.5zm0 0V3.375c0-.621-.504-1.125-1.125-1.125h-2.25a1.125 1.125 0 00-1.125 1.125V10.5m5.625 0V3.375c0-.621-.504-1.125 1.125-1.125h2.25a1.125 1.125 0 011.125 1.125V10.5M3 16.5h.008v.008H3V16.5zm0 2.25h.008v.008H3v-.008zm0 2.25h.008v.008H3v-.008z" />
-                        </svg>
-                        Format Publikasi Cetak
-                    </a>
+                    <a href="publikasi.html" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow transition flex items-center gap-2 no-underline">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.82l-.24-2.13A17.928 17.928 0 0012 10.5c1.92 0 3.746.3 5.52.85l-.24 2.13M12 10.5a17.914 17.914 0 014.28 9.531H7.72A17.914 17.914 0 0112 10.5zm0 0V3.375c0-.621-.504-1.125-1.125-1.125h-2.25a1.125 1.125 0 00-1.125 1.125V10.5m5.625 0V3.375c0-.621-.504-1.125 1.125-1.125h2.25a1.125 1.125 0 011.125 1.125V10.5M3 16.5h.008v.008H3V16.5zm0 2.25h.008v.008H3v-.008zm0 2.25h.008v.008H3v-.008z" />
+                        </svg>
+                        Format Publikasi Cetak
+                    </a>
 
-                    <a href="index.html" class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow transition no-underline">
-                        &larr; Kembali ke Kuesioner
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
+                    <a href="index.html" class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow transition no-underline">
+                        &larr; Kembali ke Kuesioner
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
 
-    <main class="max-w-7xl mx-auto px-4 pb-12">
-        <div id="loadingStatus" class="bg-white p-8 rounded-xl shadow-sm text-center font-medium text-slate-600">
-            <span class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent mr-3 align-middle"></span>
-            Memuat dan mengalkulasi data dari Google Sheets...
-        </div>
+    <main class="max-w-7xl mx-auto px-4 pb-12">
+        <div id="loadingStatus" class="bg-white p-8 rounded-xl shadow-sm text-center font-medium text-slate-600">
+            <span class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent mr-3 align-middle"></span>
+            Memuat dan mengalkulasi data dari Google Sheets...
+        </div>
 
-        <div id="dashboardContent" class="hidden space-y-8">
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                <div class="bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4" style="border-left-color: #ff5050;">
-                    <div class="pr-4 flex items-center justify-center text-[#ff5050]">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                        </svg>
-                    </div>
-                    <div class="border-r border-gray-200 h-12"></div>
-                    <div class="pl-4">
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Responden</p>
-                        <p id="totalResponden" class="text-3xl font-extrabold mt-0.5" style="color: #ff5050;">0</p>
-                    </div>
-                </div>
+        <div id="dashboardContent" class="hidden space-y-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4" style="border-left-color: #ff5050;">
+                    <div class="pr-4 flex items-center justify-center text-[#ff5050]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                        </svg>
+                    </div>
+                    <div class="border-r border-gray-200 h-12"></div>
+                    <div class="pl-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Responden</p>
+                        <p id="totalResponden" class="text-3xl font-extrabold mt-0.5" style="color: #ff5050;">0</p>
+                    </div>
+                </div>
 
-                <div id="cardIKM" class="bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-blue-600">
-                    <div id="iconIKM" class="pr-4 flex items-center justify-center text-blue-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-                        </svg>
-                    </div>
-                    <div class="border-r border-gray-200 h-12"></div>
-                    <div class="pl-4">
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nilai Akhir IKM</p>
-                        <p id="nilaiIKM" class="text-3xl font-extrabold text-blue-600 mt-0.5">0.00</p>
-                    </div>
-                </div>
+                <div id="cardIKM" class="bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-blue-600">
+                    <div id="iconIKM" class="pr-4 flex items-center justify-center text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                        </svg>
+                    </div>
+                    <div class="border-r border-gray-200 h-12"></div>
+                    <div class="pl-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nilai Akhir IKM</p>
+                        <p id="nilaiIKM" class="text-3xl font-extrabold text-blue-600 mt-0.5">0.00</p>
+                    </div>
+                </div>
 
-                <div id="cardMutu" class="bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-emerald-500">
-                    <div id="iconMutu" class="pr-4 flex items-center justify-center text-emerald-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-2.25a1.125 1.125 0 0 0-1.125 1.125V18.75m9 0V16.5L12 3 4.5 16.5v2.25m7-10.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-                        </svg>
-                    </div>
-                    <div class="border-r border-gray-200 h-12"></div>
-                    <div class="pl-4">
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Mutu Pelayanan</p>
-                        <p id="mutuPelayanan" class="text-2xl font-extrabold text-emerald-600 mt-0.5">-</p>
-                    </div>
-                </div>
+                <div id="cardMutu" class="bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-emerald-500">
+                    <div id="iconMutu" class="pr-4 flex items-center justify-center text-emerald-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-2.25a1.125 1.125 0 0 0-1.125 1.125V18.75m9 0V16.5L12 3 4.5 16.5v2.25m7-10.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                        </svg>
+                    </div>
+                    <div class="border-r border-gray-200 h-12"></div>
+                    <div class="pl-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Mutu Pelayanan</p>
+                        <p id="mutuPelayanan" class="text-2xl font-extrabold text-emerald-600 mt-0.5">-</p>
+                    </div>
+                </div>
 
-            </div>
+            </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-                <!-- Flex container untuk menyejajarkan Judul (Kiri) dan Filter Dropdown (Kanan Atas) -->
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-                    <h2 class="text-lg font-bold text-slate-800">Grafik Nilai Rata-Rata (NRR) Per Unsur Pelayanan</h2>
-                    
-                    <!-- Kotak Filter Dropdown -->
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div class="w-40 sm:w-48">
-                            <select id="filterUnit" onchange="aplikasikanFilter()" class="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-xs text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="ALL">-- Semua Unit --</option>
-                            </select>
-                        </div>
-                        <div class="w-40 sm:w-48">
-                            <select id="filterLayanan" onchange="aplikasikanFilter()" class="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-xs text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="ALL">-- Semua Layanan --</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <!-- Flex container untuk menyejajarkan Judul (Kiri) dan Filter Dropdown (Kanan Atas) -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                    <h2 class="text-lg font-bold text-slate-800">Grafik Nilai Rata-Rata (NRR) Per Unsur Pelayanan</h2>
+                    
+                    <!-- Kotak Filter Dropdown -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="w-40 sm:w-48">
+                            <select id="filterUnit" onchange="aplikasikanFilter()" class="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-xs text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <option value="ALL">-- Semua Unit --</option>
+                            </select>
+                        </div>
+                        <div class="w-40 sm:w-48">
+                            <select id="filterLayanan" onchange="aplikasikanFilter()" class="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-xs text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <option value="ALL">-- Semua Layanan --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-                <div class="relative w-full h-[350px]">
-                    <canvas id="ikmChart"></canvas>
-                </div>
-                    
-                <div class="mt-6 pt-4 border-t border-gray-100">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Keterangan Unsur Pelayanan:</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-slate-600">
-                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U1:</span> Persyaratan</div>
-                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U2:</span> Sistem Mekanisme Prosedur</div>
-                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U3:</span> Waktu Penyelesaian</div>
-                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U4:</span> Biaya / Tarif</div>
-                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U5:</span> Produk Spesifikasi Jenis Pelayanan</div>
-                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U6:</span> Kompetensi Pelaksana</div>
-                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U7:</span> Perilaku Pelaksana</div>
-                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U8:</span> Maklumat Pelayanan</div>
-                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U9:</span> Penanganan Pengaduan Saran dan Masukan</div>
-                    </div>
-                </div>
-            </div>
+                <div class="relative w-full h-[350px]">
+                    <canvas id="ikmChart"></canvas>
+                </div>
+                    
+                <div class="mt-6 pt-4 border-t border-gray-100">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Keterangan Unsur Pelayanan:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-slate-600">
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U1:</span> Persyaratan</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U2:</span> Sistem Mekanisme Prosedur</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U3:</span> Waktu Penyelesaian</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U4:</span> Biaya / Tarif</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U5:</span> Produk Spesifikasi Jenis Pelayanan</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U6:</span> Kompetensi Pelaksana</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U7:</span> Perilaku Pelaksana</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U8:</span> Maklumat Pelayanan</div>
+                        <div class="flex items-start"><span class="font-bold text-blue-600 mr-2">U9:</span> Penanganan Pengaduan Saran dan Masukan</div>
+                    </div>
+                </div>
+            </div>
 
-        </div>
-    </main>
+        </div>
+    </main>
 
-    <script>
-        // PENTING: Ganti URL di bawah ini dengan Web App URL Google Apps Script Anda yang aktif!
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4LEEaovijeNDGFJnDq8QrlBsKBoS2Icd_9kuaGv4roBfWnXj8ICWgeArEOmAtnEQnRg/exec";
-        
-        // Variabel Global untuk manajemen data dan instance grafik
-        let grafikChartInstance = null;
-        let dataGlobalMentah = null;
+    <script>
+        // PENTING: Ganti URL di bawah ini dengan Web App URL Google Apps Script Anda yang aktif!
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4LEEaovijeNDGFJnDq8QrlBsKBoS2Icd_9kuaGv4roBfWnXj8ICWgeArEOmAtnEQnRg/exec";
+        
+        // Variabel Global untuk manajemen data dan instance grafik
+        let grafikChartInstance = null;
+        let dataGlobalMentah = null;
 
-        document.addEventListener("DOMContentLoaded", function() {
-            // Mengambil data dari Google Apps Script melalui doGet
-            fetch(WEB_APP_URL)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        // Amankan object data mentah ke variabel global
-                        dataGlobalMentah = data;
+        document.addEventListener("DOMContentLoaded", function() {
+            // Mengambil data dari Google Apps Script melalui doGet
+            fetch(WEB_APP_URL)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        // Amankan object data mentah ke variabel global
+                        dataGlobalMentah = data;
 
-                        // Buat daftar dropdown berdasarkan data unit dan layanan yang dikirim database
-                        inisialisasiOpsiDropdown(data);
+                        // Buat daftar dropdown berdasarkan data unit dan layanan yang dikirim database
+                        inisialisasiOpsiDropdown(data);
 
-                        // Render element tampilan dashboard awal
-                        perbaruiTampilanDashboard(data.total_responden, data.nilai_ikm, data.mutu_pelayanan);
-                        buatGrafikBatang(data.nrr_unsur);
+                        // Render element tampilan dashboard awal
+                        perbaruiTampilanDashboard(data.total_responden, data.nilai_ikm, data.mutu_pelayanan);
+                        buatGrafikBatang(data.nrr_unsur);
 
-                        // Tukar tampilan dari loading ke konten dashboard
-                        document.getElementById("loadingStatus").classList.add("hidden");
-                        document.getElementById("dashboardContent").classList.remove("hidden");
-                    } else {
-                        document.getElementById("loadingStatus").innerText = "Gagal memuat data kalkulasi.";
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    document.getElementById("loadingStatus").innerText = "Terjadi kesalahan koneksi saat mengambil data.";
-                });
-        });
+                        // Tukar tampilan dari loading ke konten dashboard
+                        document.getElementById("loadingStatus").classList.add("hidden");
+                        document.getElementById("dashboardContent").classList.remove("hidden");
+                    } else {
+                        document.getElementById("loadingStatus").innerText = "Gagal memuat data kalkulasi.";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    document.getElementById("loadingStatus").innerText = "Terjadi kesalahan koneksi saat mengambil data.";
+                });
+        });
 
-        // Fungsi pembantu untuk merubah isi komponen text-box indikator utama
-        function perbaruiTampilanDashboard(totalResponden, nilaiIkm, mutuPelayanan) {
-            document.getElementById("totalResponden").innerText = totalResponden;
-            document.getElementById("nilaiIKM").innerText = nilaiIkm.toFixed(2);
-            document.getElementById("mutuPelayanan").innerText = mutuPelayanan;
+        // Fungsi pembantu untuk merubah isi komponen text-box indikator utama
+        function perbaruiTampilanDashboard(totalResponden, nilaiIkm, mutuPelayanan) {
+            document.getElementById("totalResponden").innerText = totalResponden;
+            document.getElementById("nilaiIKM").innerText = nilaiIkm.toFixed(2);
+            document.getElementById("mutuPelayanan").innerText = mutuPelayanan;
 
-            const cardMutu = document.getElementById("cardMutu");
-            const iconMutu = document.getElementById("iconMutu");
-            const mutuEl = document.getElementById("mutuPelayanan");
-            const mutuTeks = mutuPelayanan.trim().toUpperCase();
+            const cardMutu = document.getElementById("cardMutu");
+            const iconMutu = document.getElementById("iconMutu");
+            const mutuEl = document.getElementById("mutuPelayanan");
+            const mutuTeks = mutuPelayanan.trim().toUpperCase();
 
-            if (mutuTeks.startsWith("A")) {
-                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-emerald-500";
-                iconMutu.className = "pr-4 flex items-center justify-center text-emerald-600";
-                mutuEl.className = "text-2xl font-extrabold text-emerald-600 mt-0.5";
-            } else if (mutuTeks.startsWith("B")) {
-                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-blue-500";
-                iconMutu.className = "pr-4 flex items-center justify-center text-blue-500";
-                mutuEl.className = "text-2xl font-extrabold text-blue-500 mt-0.5";
-            } else if (mutuTeks.startsWith("C")) {
-                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-amber-500";
-                iconMutu.className = "pr-4 flex items-center justify-center text-amber-500";
-                mutuEl.className = "text-2xl font-extrabold text-amber-500 mt-0.5";
-            } else if (mutuTeks.startsWith("D")) {
-                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-red-500";
-                iconMutu.className = "pr-4 flex items-center justify-center text-red-500";
-                mutuEl.className = "text-2xl font-extrabold text-red-500 mt-0.5";
-            }
-        }
+            if (mutuTeks.startsWith("A")) {
+                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-emerald-500";
+                iconMutu.className = "pr-4 flex items-center justify-center text-emerald-600";
+                mutuEl.className = "text-2xl font-extrabold text-emerald-600 mt-0.5";
+            } else if (mutuTeks.startsWith("B")) {
+                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-blue-500";
+                iconMutu.className = "pr-4 flex items-center justify-center text-blue-500";
+                mutuEl.className = "text-2xl font-extrabold text-blue-500 mt-0.5";
+            } else if (mutuTeks.startsWith("C")) {
+                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-amber-500";
+                iconMutu.className = "pr-4 flex items-center justify-center text-amber-500";
+                mutuEl.className = "text-2xl font-extrabold text-amber-500 mt-0.5";
+            } else if (mutuTeks.startsWith("D")) {
+                cardMutu.className = "bg-white rounded-xl shadow-sm border-l-4 flex items-center p-4 border-red-500";
+                iconMutu.className = "pr-4 flex items-center justify-center text-red-500";
+                mutuEl.className = "text-2xl font-extrabold text-red-500 mt-0.5";
+            }
+        }
 
-        // Fungsi pembantu untuk pembuatan grafik awal
-        function buatGrafikBatang(nrrUnsur) {
-            const ctx = document.getElementById('ikmChart').getContext('2d');
-            grafikChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8', 'U9'],
-                    datasets: [{
-                        label: 'Nilai Rata-Rata Unsur',
-                        data: nrrUnsur,
-                        backgroundColor: function(context) {
-                            const chart = context.chart;
-                            const { data: chartData } = chart.data.datasets[0];
-                            if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 0.2)';
-                            
-                            const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
-                            indexedData.sort((a, b) => a.val - b.val);
-                            
-                            const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
-                            return lowestIndices.includes(context.dataIndex) 
-                                ? 'rgba(255, 80, 80, 0.2)' 
-                                : 'rgba(37, 99, 235, 0.2)';
-                        },
-                        borderColor: function(context) {
-                            const chart = context.chart;
-                            const { data: chartData } = chart.data.datasets[0];
-                            if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 1)';
-                            
-                            const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
-                            indexedData.sort((a, b) => a.val - b.val);
-                            
-                            const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
-                            return lowestIndices.includes(context.dataIndex) 
-                                ? '#ff5050' 
-                                : 'rgba(37, 99, 235, 1)';
-                        },
-                        borderWidth: 2,
-                        borderRadius: 6,
-                        barThickness: 30
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 4,
-                            ticks: { stepSize: 1 }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
+        // Fungsi pembantu untuk pembuatan grafik awal
+        function buatGrafikBatang(nrrUnsur) {
+            const ctx = document.getElementById('ikmChart').getContext('2d');
+            grafikChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8', 'U9'],
+                    datasets: [{
+                        label: 'Nilai Rata-Rata Unsur',
+                        data: nrrUnsur,
+                        backgroundColor: function(context) {
+                            const chart = context.chart;
+                            const { data: chartData } = chart.data.datasets[0];
+                            if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 0.2)';
+                            
+                            const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
+                            indexedData.sort((a, b) => a.val - b.val);
+                            
+                            const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
+                            return lowestIndices.includes(context.dataIndex) 
+                                ? 'rgba(255, 80, 80, 0.2)' 
+                                : 'rgba(37, 99, 235, 0.2)';
+                        },
+                        borderColor: function(context) {
+                            const chart = context.chart;
+                            const { data: chartData } = chart.data.datasets[0];
+                            if (!chartData || chartData.length === 0) return 'rgba(37, 99, 235, 1)';
+                            
+                            const indexedData = chartData.map((val, idx) => ({ val: Number(val) || 0, idx }));
+                            indexedData.sort((a, b) => a.val - b.val);
+                            
+                            const lowestIndices = indexedData.slice(0, 4).map(item => item.idx);
+                            return lowestIndices.includes(context.dataIndex) 
+                                ? '#ff5050' 
+                                : 'rgba(37, 99, 235, 1)';
+                        },
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        barThickness: 30
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 4,
+                            ticks: { stepSize: 1 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
 
-        // Mengisi opsi dinamis pada filter dropdown dari data unik database
-        function inisialisasiOpsiDropdown(data) {
-            const selectUnit = document.getElementById('filterUnit');
-            const selectLayanan = document.getElementById('filterLayanan');
+        // Mengisi opsi dinamis pada filter dropdown dari data unik database
+        function inisialisasiOpsiDropdown(data) {
+            const selectUnit = document.getElementById('filterUnit');
+            const selectLayanan = document.getElementById('filterLayanan');
 
-            // Cek ketersediaan daftar pilihan unik dari payload API/Sheets Anda
-            if (data.daftar_unit) {
-                data.daftar_unit.forEach(unit => {
-                    const opt = document.createElement('option');
-                    opt.value = unit; opt.textContent = unit;
-                    selectUnit.appendChild(opt);
-                });
-            }
-            if (data.daftar_layanan) {
-                data.daftar_layanan.forEach(layanan => {
-                    const opt = document.createElement('option');
-                    opt.value = layanan; opt.textContent = layanan;
-                    selectLayanan.appendChild(opt);
-                });
-            }
-        }
+            // Cek ketersediaan daftar pilihan unik dari payload API/Sheets Anda
+            if (data.daftar_unit) {
+                data.daftar_unit.forEach(unit => {
+                    const opt = document.createElement('option');
+                    opt.value = unit; opt.textContent = unit;
+                    selectUnit.appendChild(opt);
+                });
+            }
+            if (data.daftar_layanan) {
+                data.daftar_layanan.forEach(layanan => {
+                    const opt = document.createElement('option');
+                    opt.value = layanan; opt.textContent = layanan;
+                    selectLayanan.appendChild(opt);
+                });
+            }
+        }
 
-        // Aksi Filter Real-time Berdasarkan Perubahan Dropdown
-        window.aplikasikanFilter = function() {
-            const unitTerpilih = document.getElementById('filterUnit').value;
-            const layananTerpilih = document.getElementById('filterLayanan').value;
+        // Aksi Filter Real-time Berdasarkan Perubahan Dropdown
+        window.aplikasikanFilter = function() {
+            const unitTerpilih = document.getElementById('filterUnit').value;
+            const layananTerpilih = document.getElementById('filterLayanan').value;
 
-            // Kirim query penapis ke backend Web App Google Apps Script Anda
-            // Struktur pemanggilan: WEB_APP_URL?unit=...&layanan=...
-            let queryUrl = WEB_APP_URL + "?";
-            if (unitTerpilih !== "ALL") queryUrl += "unit=" + encodeURIComponent(unitTerpilih) + "&";
-            if (layananTerpilih !== "ALL") queryUrl += "layanan=" + encodeURIComponent(layananTerpilih);
+            // Kirim query penapis ke backend Web App Google Apps Script Anda
+            // Struktur pemanggilan: WEB_APP_URL?unit=...&layanan=...
+            let queryUrl = WEB_APP_URL + "?";
+            if (unitTerpilih !== "ALL") queryUrl += "unit=" + encodeURIComponent(unitTerpilih) + "&";
+            if (layananTerpilih !== "ALL") queryUrl += "layanan=" + encodeURIComponent(layananTerpilih);
 
-            // Munculkan tanda memuat data tipis saat memproses penyaringan baru
-            document.getElementById("totalResponden").innerText = "...";
+            // Munculkan tanda memuat data tipis saat memproses penyaringan baru
+            document.getElementById("totalResponden").innerText = "...";
 
-            fetch(queryUrl)
-                .then(res => res.json())
-                .then(dataHasilFilter => {
-                    if(dataHasilFilter.status === "success") {
-                        // Ganti angka resume indikator dashboard
-                        perbaruiTampilanDashboard(
-                            dataHasilFilter.total_responden, 
-                            dataHasilFilter.nilai_ikm, 
-                            dataHasilFilter.mutu_pelayanan
-                        );
+            fetch(queryUrl)
+                .then(res => res.json())
+                .then(dataHasilFilter => {
+                    if(dataHasilFilter.status === "success") {
+                        // Ganti angka resume indikator dashboard
+                        perbaruiTampilanDashboard(
+                            dataHasilFilter.total_responden, 
+                            dataHasilFilter.nilai_ikm, 
+                            dataHasilFilter.mutu_pelayanan
+                        );
 
-                        // Suntikkan data array baru ke chart dan suruh Chart.js mendesain ulang bentuk batangnya
-                        if(grafikChartInstance) {
-                            grafikChartInstance.data.datasets[0].data = dataHasilFilter.nrr_unsur;
-                            grafikChartInstance.update();
-                        }
-                    }
-                })
-                .catch(err => console.error("Gagal menerapkan filter:", err));
-        }
-    </script>
+                        // Suntikkan data array baru ke chart dan suruh Chart.js mendesain ulang bentuk batangnya
+                        if(grafikChartInstance) {
+                            grafikChartInstance.data.datasets[0].data = dataHasilFilter.nrr_unsur;
+                            grafikChartInstance.update();
+                        }
+                    }
+                })
+                .catch(err => console.error("Gagal menerapkan filter:", err));
+        }
+    </script>
 </body>
 </html>
