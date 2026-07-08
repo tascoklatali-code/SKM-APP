@@ -36,17 +36,18 @@
 
         <!-- BOX 4 UNSUR PRIORITAS + KOMPONEN FILTER DINAMIS REAL-TIME -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 pb-4 border-b border-slate-100">
+            <!-- PENYESUAIAN TATA LETAK: KEDUANYA TERSUSUN KE BAWAH SECARA RAPI -->
+            <div class="flex flex-col gap-4 mb-4 pb-4 border-b border-slate-100">
                 <h3 class="text-sm font-bold text-red-600 uppercase tracking-wider flex items-center gap-2">
                     ⚠️ 4 Unsur Prioritas Utama Perbaikan (Skor Terendah):
                 </h3>
                 
-                <!-- FILTER INTERAKTIF - SEKARANG OTOMATIS BERISI DATA DARI GOOGLE SHEETS -->
-                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                    <select id="filterUnit" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[200px]">
+                <!-- FILTER INTERAKTIF - TERLETAK DI BAWAH JUDUL SECARA PROPORSIAL -->
+                <div class="flex flex-wrap gap-2 w-full">
+                    <select id="filterUnit" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-60 shadow-xs">
                         <option value="">-- Semua Unit --</option>
                     </select>
-                    <select id="filterLayanan" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[200px]">
+                    <select id="filterLayanan" onchange="generateRekomendasiAI()" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl block p-2.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-60 shadow-xs">
                         <option value="">-- Semua Layanan --</option>
                     </select>
                 </div>
