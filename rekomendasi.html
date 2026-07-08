@@ -23,7 +23,7 @@
                 <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                     ✨ Rekomendasi & Tindak Lanjut Berbasis Artificial Intelligence
                 </h1>
-                <p class="text-sm text-slate-500 mt-1">Analisis otomatis menggunakan Generative Artificial Intelligence berdasarkan 4 unsur pelayanan terendah.</p>
+                <p class="text-sm text-slate-500 mt-1">Analisis otomatis menggunakan Generative Artificial Intelligence berdasarkan 4 unsur pelayanan terendah secara real-time.</p>
             </div>
             <a href="dashboard.html" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold py-2 px-4 rounded-xl shadow-sm transition no-underline">
                 &larr; Kembali ke Dashboard
@@ -35,7 +35,8 @@
                 ⚠️ 4 Unsur Prioritas Utama Perbaikan (Skor Terendah):
             </h3>
             <div id="lowElementsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                </div>
+                <!-- Diisi otomatis melalui JS -->
+            </div>
         </div>
 
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
@@ -50,25 +51,23 @@
 
             <div id="aiLoading" class="py-12 flex flex-col items-center justify-center gap-3">
                 <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-sm text-slate-500 font-medium">Artificial Intelligence sedang merumuskan rekomendasi taktis perbaikan...</p>
+                <p id="loadingText" class="text-sm text-slate-500 font-medium">Menghubungkan ke database Google Sheets...</p>
             </div>
 
             <div id="aiContent" class="hidden">
                 <div id="geminiOutput" class="prose max-w-none text-sm leading-relaxed text-slate-700 space-y-4">
-                    </div>
+                    <!-- Hasil AI -->
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Mengambil API Key dari penyimpanan lokal browser (localStorage) agar aman dari GitHub Scanner
-        let GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || ""; 
+        // URL Web App Google Apps Script Anda (Ganti dengan URL Deployment Anda yang aktif)
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycb...MOCK_URL.../exec";
 
-        // Simulasi data real-time nilai unsur SKM
-        const dataUnsurNyata = {
-            'U1': 3.5, 'U2': 3.0, 'U3': 2.5, 'U4': 2.5, 
-            'U5': 3.0, 'U6': 2.5, 'U7': 2.0, 'U8': 2.5, 'U9': 2.5
-        };
+        // Mengambil API Key dari penyimpanan lokal browser (localStorage)
+        let GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || ""; 
 
         // Kamus nama lengkap singkatan unsur berdasarkan Permenpan RB
         const namaUnsurLengkap = {
@@ -88,7 +87,7 @@
             generateRekomendasiAI();
         });
 
-        // Fungsi utama untuk memanggil AI Gemini
+        // Fungsi utama untuk mengambil data DB dan memanggil AI Gemini
         async function generateRekomendasiAI() {
             // Minta input token jika memori penyimpanan kosong
             if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
@@ -104,21 +103,63 @@
             }
 
             const loadingEl = document.getElementById('aiLoading');
+            const loadingTextEl = document.getElementById('loadingText');
             const contentEl = document.getElementById('aiContent');
             const outputEl = document.getElementById('geminiOutput');
             const listEl = document.getElementById('lowElementsList');
 
             loadingEl.classList.remove('hidden');
             contentEl.classList.add('hidden');
+            loadingTextEl.innerText = "Mengambil data rekapitulasi unsur SKM terkini dari Google Sheets...";
             listEl.innerHTML = '';
 
-            // 1. Mengurutkan skor unsur dari koordinat terkecil ke terbesar
+            let dataUnsurNyata = {};
+
+            // 1. Ambil Data secara Real-Time dari Google Sheets via Apps Script
+            try {
+                const responseSheets = await fetch(`${SCRIPT_URL}?action=getUnsur`);
+                if (!responseSheets.ok) {
+                    throw new Error(`Gagal terhubung ke Apps Script (Status: ${responseSheets.status})`);
+                }
+                const resData = await responseSheets.json();
+                
+                // Pastikan format yang kembali adalah objek pasangan key-value seperti {U1: 3.4, U2: 3.1, ...}
+                if (resData && resData.status === "success" && resData.data) {
+                    dataUnsurNyata = resData.data;
+                } else if (resData && !resData.status) {
+                    // Fallback jika backend langsung mengembalikan objek data mentah
+                    dataUnsurNyata = resData;
+                } else {
+                    throw new Error("Format data respon dari Google Sheets tidak dikenali.");
+                }
+            } catch (error) {
+                console.error("Sheets Error:", error);
+                outputEl.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
+                        <p class="font-semibold">⚠️ Gagal mengambil data dari Google Sheets.</p>
+                        <p class="text-xs mt-1 text-red-500">Detail: ${error.message}. Pastikan URL Web App Apps Script sudah benar, di-deploy sebagai 'Anyone', dan mengembalikan data unsur U1-U9.</p>
+                    </div>`;
+                loadingEl.classList.add('hidden');
+                contentEl.classList.remove('hidden');
+                return;
+            }
+
+            // 2. Mengurutkan skor unsur dari koordinat terkecil ke terbesar
+            loadingTextEl.innerText = "Menganalisis skor terendah dan memformulasikan prompt...";
             const sortedUnsur = Object.keys(dataUnsurNyata)
-                .map(key => ({ id: key, nama: namaUnsurLengkap[key], skor: dataUnsurNyata[key] }))
+                .filter(key => namaUnsurLengkap[key]) // Hanya memproses U1 hingga U9 valid
+                .map(key => ({ id: key, nama: namaUnsurLengkap[key], skor: parseFloat(dataUnsurNyata[key]) || 0 }))
                 .sort((a, b) => a.skor - b.skor);
 
             // Ambil top 4 unsur terendah
             const prioritas = sortedUnsur.slice(0, 4);
+
+            if(prioritas.length === 0) {
+                outputEl.innerHTML = `<p class="text-amber-600 font-medium">⚠️ Tidak ada data unsur pelayanan yang berhasil divalidasi dari database.</p>`;
+                loadingEl.classList.add('hidden');
+                contentEl.classList.remove('hidden');
+                return;
+            }
 
             // Cetak struktur visual box unsur terendah
             prioritas.forEach((unsur, index) => {
@@ -135,9 +176,11 @@
                 listEl.appendChild(card);
             });
 
-            // 2. Menyusun struktur teks perintah prompt
+            // 3. Menyusun struktur teks perintah prompt AI
+            loadingTextEl.innerText = "Artificial Intelligence sedang merumuskan rekomendasi taktis perbaikan...";
+            
             let promptText = `Anda adalah seorang ahli Analis Pelayanan Publik dan Kepuasan Masyarakat profesional di Indonesia. 
-Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pelayanan dengan nilai koordinat indeks terendah yang memerlukan tindakan perbaikan segera:\n\n`;
+Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pelayanan dengan nilai indeks terendah yang memerlukan tindakan perbaikan segera:\n\n`;
 
             prioritas.forEach((unsur, i) => {
                 promptText += `${i+1}. Unsur [${unsur.id}] ${unsur.nama} dengan skor nilai: ${unsur.skor.toFixed(2)}\n`;
@@ -145,11 +188,11 @@ Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pel
 
             promptText += `\nBerikan rekomendasi tindakan perbaikan konkret, taktis, dan aplikatif untuk masing-masing dari ke-4 unsur di atas agar kualitas pelayanan publik dapat meningkat secara signifikan sesuai standar regulasi Menpan RB. Gunakan format Markdown yang rapi dengan poin-poin yang jelas dan profesional.`;
 
-            // 3. Eksekusi Request Post ke Endpoint Gemini 2.5 Flash Terbaru
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            // 4. Eksekusi Request Post ke Endpoint Gemini 2.5 Flash
+            const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             try {
-                const response = await fetch(url, {
+                const response = await fetch(urlGemini, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -185,28 +228,26 @@ Berdasarkan data Survei Kepuasan Masyarakat (SKM) terbaru, ditemukan 4 unsur pel
             } catch (error) {
                 console.error("Gemini API Error:", error);
                 
-                // Menangani kondisi jika API key ditolak (Error 401)
                 if (error.message.includes("401")) {
                     localStorage.removeItem('gemini_api_key');
                     outputEl.innerHTML = `
                         <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
                             <p class="font-semibold">⚠️ API Key Ditolak (Error 401).</p>
-                            <p class="text-xs mt-1 text-red-500">Kunci lama yang tersimpan di memori browser Anda salah atau tidak valid. Penyimpanan lokal telah disetel ulang otomatis. Silakan lakukan <strong>Muat Ulang / Refresh Halaman Ini</strong> untuk memicu pop-up input kunci yang baru.</p>
+                            <p class="text-xs mt-1 text-red-500">Kunci lama yang tersimpan di memori browser Anda salah atau tidak valid. Silakan lakukan <strong>Muat Ulang Halaman</strong> untuk memasukkan kunci API yang valid.</p>
                         </div>`;
                 } else {
                     outputEl.innerHTML = `
                         <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
-                            <p class="font-semibold">⚠️ Gagal memuat rekomendasi otomatis.</p>
-                            <p class="text-xs mt-1 text-red-500">Detail Kesalahan: ${error.message}. Pastikan status koneksi internet Anda stabil atau cek kembali kuota harian API Anda.</p>
+                            <p class="font-semibold">⚠️ Gagal memuat rekomendasi otomatis AI.</p>
+                            <p class="text-xs mt-1 text-red-500">Detail Kesalahan: ${error.message}. Pastikan status koneksi internet stabil atau cek kuota harian API Anda.</p>
                         </div>`;
                 }
             } finally {
-                loadingEl.className = 'hidden';
+                loadingEl.classList.add('hidden');
                 contentEl.classList.remove('hidden');
             }
         }
 
-        // Fungsi pembantu pemicu tombol pemuatan ulang rekomendasi
         function regenerateAnalisis() {
             generateRekomendasiAI();
         }
